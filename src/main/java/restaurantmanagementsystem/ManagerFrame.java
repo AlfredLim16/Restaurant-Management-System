@@ -1,5 +1,5 @@
 
-package restaurantsystem;
+package restaurantmanagementsystem;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
