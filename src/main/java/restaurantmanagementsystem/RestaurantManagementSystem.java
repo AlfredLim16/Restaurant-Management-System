@@ -1,6 +1,8 @@
 
 package restaurantmanagementsystem;
 
+import user.LoginFrame;
+
 /**
  *
  * @author admin
@@ -8,6 +10,7 @@ package restaurantmanagementsystem;
 public class RestaurantManagementSystem {
 
     public static void main(String[] args) {
-        System.out.println("Hello World!");
+        LoginFrame loginFrame = new LoginFrame();
+        loginFrame.setVisible(true);
     }
 }
