@@ -3,92 +3,15 @@ package dataservice;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.HashMap;
-import model.RestaurantModel.*;
+import model.RestaurantModel.MenuItem;
+import model.RestaurantModel.Order;
+import model.RestaurantModel.Payment;
 
 /**
  *
  * @author Allysa
  */
 public class RestaurantDataService {
-
-    public static abstract class AbstractDataService<Model> {
-
-        protected HashMap<Integer, Model> storage = new HashMap<>();
-        protected int nextModelId = 1;
-
-        protected abstract int getModelId(Model model);
-        protected abstract void setModelId(Model model, int id);
-
-        public void create(Model newModel){
-            if(getModelId(newModel) == 0){
-                setModelId(newModel, nextModelId++);
-            }
-            storage.put(getModelId(newModel), newModel);
-        }
-
-        public Model get(int modelId){
-            return storage.get(modelId);
-        }
-
-        public ArrayList<Model> getAll(){
-            return new ArrayList<>(storage.values());
-        }
-
-        public void update(Model existingModel){
-            int id = getModelId(existingModel);
-            if(storage.containsKey(id)){
-                storage.put(id, existingModel);
-            }
-        }
-
-        public void delete(int modelId){
-            storage.remove(modelId);
-        }
-
-        public boolean exists(int modelId){
-            return storage.containsKey(modelId);
-        }
-    }
-
-    public interface IAuthentication {
-
-        User login(String username, String password);
-    }
-
-    public interface IPermission {
-
-        boolean canAccessOrder(Role role);
-        boolean canAccessInventory(Role role);
-        boolean canAccessPayment(Role role);
-        boolean canAccessReports(Role role);
-        boolean canAccessFoodWaste(Role role);
-        boolean canAccessSettings(Role role);
-    }
-
-    public interface IUser {
-
-        void addUser(User user);
-        User findByUsername(String username);
-        void updateUser(User user);
-        void deleteUser(String username);
-        boolean userExists(String username);
-
-        ArrayList<User> getAllUsers();
-    }
-
-    public interface IInventoryItem {
-
-        void create(InventoryItem item);
-        InventoryItem get(int inventoryId);
-        ArrayList<InventoryItem> getAll();
-        void update(InventoryItem item);
-        void delete(int inventoryId);
-
-        ArrayList<InventoryItem> findByCategory(String category);
-        ArrayList<InventoryItem> findExpiringSoon(int daysThreshold);
-        ArrayList<InventoryItem> findLowStock();
-    }
 
     public interface IMenuItem {
 
@@ -126,19 +49,6 @@ public class RestaurantDataService {
         ArrayList<Payment> findByOrderId(int orderId);
         ArrayList<Payment> findByPaymentMethod(String method);
         ArrayList<Payment> findByStatus(String status);
-    }
-
-    public interface IFoodWaste {
-
-        void create(FoodWaste waste);
-        FoodWaste get(int wasteId);
-        ArrayList<FoodWaste> getAll();
-        void update(FoodWaste waste);
-        void delete(int wasteId);
-
-        ArrayList<FoodWaste> findByCategory(String category);
-        ArrayList<FoodWaste> findByDateRange(LocalDate startDate, LocalDate endDate);
-        ArrayList<FoodWaste> findByReason(String reason);
     }
 
 }

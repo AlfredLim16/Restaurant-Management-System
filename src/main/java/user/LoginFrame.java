@@ -1,14 +1,10 @@
-package restaurantmanagementsystem;
+package user;
 
-import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import appservice.RestaurantAppService.*;
-import dataservice.RestaurantInMemory.InMemoryUser;
-import dataservice.RestaurantDataService.IUser;
-import model.RestaurantModel.User;
-import model.RestaurantModel.Role;
+import javax.swing.*;
+import manager.ManagerFrame;
 
 /**
  *

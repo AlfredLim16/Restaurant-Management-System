@@ -1,24 +1,25 @@
 
-package restaurantmanagementsystem;
+package manager;
 
-import javax.swing.*;
-import javax.swing.table.DefaultTableModel;
+import appservice.RestaurantAppService.OrderService;
+import appservice.RestaurantAppService.PaymentService;
+import dataservice.RestaurantDataService;
+import dataservice.RestaurantInMemory;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.net.URL;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashMap;
-import appservice.RestaurantAppService.*;
-import dataservice.RestaurantInMemory;
-import dataservice.RestaurantDataService;
-import dataservice.RestaurantDataService.IPermission;
-import java.net.URL;
+import javax.swing.*;
 import static javax.swing.SwingConstants.CENTER;
 import javax.swing.table.DefaultTableCellRenderer;
-import model.RestaurantModel.*;
-import model.RestaurantModel.InventoryItem;
+import javax.swing.table.DefaultTableModel;
+import user.IPermission;
+import user.User;
+import user.ValidationException;
 
 public class ManagerFrame extends JFrame implements ActionListener {
 
@@ -81,8 +82,8 @@ public class ManagerFrame extends JFrame implements ActionListener {
     private void Services(){
         RestaurantDataService.IOrder orderData = new RestaurantInMemory.InMemoryOrder();
         RestaurantDataService.IPayment paymentData = new RestaurantInMemory.InMemoryPayment();
-        RestaurantDataService.IInventoryItem inventoryData = new RestaurantInMemory.InMemoryInventoryItem();
-        RestaurantDataService.IFoodWaste foodWasteData = new RestaurantInMemory.InMemoryFoodWaste();
+        IInventoryItem inventoryData = new InMemoryInventoryItem();
+        IFoodWaste foodWasteData = new InMemoryFoodWaste();
         RestaurantDataService.IMenuItem menuData = new RestaurantInMemory.InMemoryMenuItem();
 
         orderService = new OrderService(orderData, menuData);
@@ -91,7 +92,7 @@ public class ManagerFrame extends JFrame implements ActionListener {
         foodWasteService = new FoodWasteService(foodWasteData);
         reportService = new ReportService(orderData, paymentData, inventoryData, foodWasteData);
     }
-    
+
     private ImageIcon loadIcon(String filename, int size) {
         URL url = getClass().getResource("/icons/" + filename);
         if(url == null) return null;
@@ -227,12 +228,12 @@ public class ManagerFrame extends JFrame implements ActionListener {
         lblTitle.setBounds(20, 10, 200, 30);
         lblTitle.setFont(new Font("Arial", Font.BOLD, 18));
         panelDashboard.add(lblTitle);
-        
+
         JLabel lblSubTitle = new JLabel("Overview of the Restaurant");
         lblSubTitle.setBounds(20, 35, 300, 30);
         lblSubTitle.setFont(new Font("Arial", Font.PLAIN, 14));
         panelDashboard.add(lblSubTitle);
-        
+
         JSeparator separator = new JSeparator();
         separator.setBounds(20, 70, 940, 1);
         separator.setForeground(Color.BLACK);
@@ -269,12 +270,12 @@ public class ManagerFrame extends JFrame implements ActionListener {
         lblTitle.setBounds(20, 10, 200, 30);
         lblTitle.setFont(new Font("Arial", Font.BOLD, 18));
         panelInventory.add(lblTitle);
-        
+
         JLabel lblSubTitle = new JLabel("Manage stock levels, reorders, and suppliers");
         lblSubTitle.setBounds(20, 35, 300, 30);
         lblSubTitle.setFont(new Font("Arial", Font.PLAIN, 14));
         panelInventory.add(lblSubTitle);
-        
+
         JSeparator separator = new JSeparator();
         separator.setBounds(20, 70, 940, 1);
         separator.setForeground(Color.BLACK);
@@ -325,7 +326,7 @@ public class ManagerFrame extends JFrame implements ActionListener {
 
     private void refreshInventory(){
         modelInventory.setRowCount(0);
-        ArrayList <InventoryItem > items = inventoryService.getAllInventoryItems();
+        ArrayList <InventoryItem> items = inventoryService.getAllInventoryItems();
         for(InventoryItem item : items){
             boolean low = inventoryService.isLowStock(item.getInventoryItemId());
             boolean exp = inventoryService.isExpiringSoon(item.getInventoryItemId(), 7);
@@ -364,12 +365,12 @@ public class ManagerFrame extends JFrame implements ActionListener {
         lblTitle.setBounds(20, 10, 200, 30);
         lblTitle.setFont(new Font("Arial", Font.BOLD, 18));
         panelFoodWaste.add(lblTitle);
-        
+
         JLabel lblSubTitle = new JLabel("Monitor and reduce food waste");
         lblSubTitle.setBounds(20, 35, 300, 30);
         lblSubTitle.setFont(new Font("Arial", Font.PLAIN, 14));
         panelFoodWaste.add(lblSubTitle);
-        
+
         JSeparator separator = new JSeparator();
         separator.setBounds(20, 70, 940, 1);
         separator.setForeground(Color.BLACK);
@@ -512,12 +513,12 @@ public class ManagerFrame extends JFrame implements ActionListener {
         lblTitle.setBounds(20, 10, 200, 30);
         lblTitle.setFont(new Font("Arial", Font.BOLD, 18));
         panelReports.add(lblTitle);
-        
+
         JLabel lblSubTitle = new JLabel("Analytics and performance insights");
         lblSubTitle.setBounds(20, 35, 300, 30);
         lblSubTitle.setFont(new Font("Arial", Font.PLAIN, 14));
         panelReports.add(lblSubTitle);
-        
+
         JSeparator separator = new JSeparator();
         separator.setBounds(20, 70, 940, 1);
         separator.setForeground(Color.BLACK);
@@ -639,7 +640,7 @@ public class ManagerFrame extends JFrame implements ActionListener {
         }else if(e.getSource() == btnLogout){
             System.exit(0);
         }
-        
+
         if(e.getSource() == btnInvAdd){
             addInventory();
         }else if(e.getSource() == btnInvUpdate){
@@ -649,7 +650,7 @@ public class ManagerFrame extends JFrame implements ActionListener {
         }else if(e.getSource() == btnInvDelete){
             deleteInventory();
         }
-        
+
         if(e.getSource() == btnWasteSave){
             saveWaste();
         }else if(e.getSource() == btnWasteReset){
