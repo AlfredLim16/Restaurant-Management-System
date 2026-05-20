@@ -1,17 +1,20 @@
 package manager;
 
-import appservice.RestaurantAppService;
-import dataservice.RestaurantDataService;
+import cashier.IOrder;
+import cashier.IPayment;
+import cashier.Order;
+import cashier.OrderStatus;
+import cashier.Payment;
+import cashier.PaymentStatus;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashMap;
-import model.RestaurantModel;
 import user.AbstractAppService;
 
 public class ReportService extends AbstractAppService {
 
-    private final RestaurantDataService.IOrder _order;
-    private final RestaurantDataService.IPayment _payment;
+    private final IOrder _order;
+    private final IPayment _payment;
     private final IInventoryItem _inventoryItem;
     private final IFoodWaste _foodWaste;
 
@@ -20,7 +23,7 @@ public class ReportService extends AbstractAppService {
     private static final String TOTAL_TIPS = "totalTips";
     private static final String TRANSACTION_COUNT = "transactionCount";
 
-    public ReportService(RestaurantDataService.IOrder order, RestaurantDataService.IPayment payment, IInventoryItem inventoryItem, IFoodWaste foodWaste){
+    public ReportService(IOrder order, IPayment payment, IInventoryItem inventoryItem, IFoodWaste foodWaste){
         this._order = order;
         this._payment = payment;
         this._inventoryItem = inventoryItem;
@@ -36,8 +39,8 @@ public class ReportService extends AbstractAppService {
         double totalTips = 0.0;
         int transactionCount = 0;
 
-        for(RestaurantModel.Payment currentPayment : _payment.findByDate(reportDate)){
-            if(RestaurantAppService.PaymentStatus.COMPLETED.equals(currentPayment.getPaymentStatus())){
+        for(Payment currentPayment : _payment.findByDate(reportDate)){
+            if(PaymentStatus.COMPLETED.equals(currentPayment.getPaymentStatus())){
                 transactionCount++;
                 totalRevenue += currentPayment.getPaymentAmount();
                 totalTips += currentPayment.getPaymentTipAmount();
@@ -133,9 +136,9 @@ public class ReportService extends AbstractAppService {
     public HashMap<String, Object> orderReport(){
         HashMap<String, Object> reportData = new HashMap<>();
         HashMap<String, Long> orderStatusBreakdown = new HashMap<>();
-        ArrayList<RestaurantModel.Order> allRestaurantOrders = _order.getAll();
+        ArrayList<Order> allRestaurantOrders = _order.getAll();
 
-        for(RestaurantModel.Order currentOrder : allRestaurantOrders){
+        for(Order currentOrder : allRestaurantOrders){
             String orderStatus = currentOrder.getOrderStatus();
             Long statusCount = orderStatusBreakdown.get(orderStatus);
             if(statusCount == null){
@@ -145,9 +148,9 @@ public class ReportService extends AbstractAppService {
             }
         }
 
-        ArrayList<RestaurantModel.Order> completedRestaurantOrders = _order.findByStatus(RestaurantAppService.OrderStatus.COMPLETED);
+        ArrayList<Order> completedRestaurantOrders = _order.findByStatus(OrderStatus.COMPLETED);
         double totalCompletedRevenue = 0.0;
-        for(RestaurantModel.Order completedOrder : completedRestaurantOrders){
+        for(Order completedOrder : completedRestaurantOrders){
             totalCompletedRevenue += completedOrder.getOrderTotalAmount();
         }
 
@@ -163,19 +166,19 @@ public class ReportService extends AbstractAppService {
     // returns summary for active orders, completed orders, total revenue, low stock alerts
     public HashMap<String, Object> dashboardSummary(){
         HashMap<String, Object> summaryData = new HashMap<>();
-        ArrayList<RestaurantModel.Order> allRestaurantOrders = _order.getAll();
+        ArrayList<Order> allRestaurantOrders = _order.getAll();
 
         long activeOrderCount = 0;
         long completedOrderCount = 0;
         double totalRevenueFromCompletedOrders = 0.0;
 
-        for(RestaurantModel.Order currentOrder : allRestaurantOrders){
+        for(Order currentOrder : allRestaurantOrders){
             String orderStatus = currentOrder.getOrderStatus();
-            if(!RestaurantAppService.OrderStatus.COMPLETED.equals(orderStatus)
-                && !RestaurantAppService.OrderStatus.CANCELLED.equals(orderStatus)){
+            if(!OrderStatus.COMPLETED.equals(orderStatus)
+                && !OrderStatus.CANCELLED.equals(orderStatus)){
                 activeOrderCount++;
             }
-            if(RestaurantAppService.OrderStatus.COMPLETED.equals(orderStatus)){
+            if(OrderStatus.COMPLETED.equals(orderStatus)){
                 completedOrderCount++;
                 totalRevenueFromCompletedOrders += currentOrder.getOrderTotalAmount();
             }

@@ -1,5 +1,6 @@
 package user;
 
+import cashier.CashierFrame;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -12,13 +13,14 @@ import manager.ManagerFrame;
  */
 public class LoginFrame extends JFrame implements ActionListener {
 
-    private JTextField txtUsername;
-    private JPasswordField txtPassword;
-    private JButton btnLogin;
-    private JLabel lblUser, lblPass, lblError;
-    private AuthenticationService authService;
-    private PermissionService permService;
-    private IUser userData;
+    private final IUser userData;
+    private final JButton btnLogin;
+    private final JTextField txtUsername;
+    private final JPasswordField txtPassword;
+    private final PermissionService permService;
+    private final JLabel lblUser, lblPass, lblError;
+    private final AuthenticationService authService;
+
 
     public LoginFrame(){
         setTitle("Byte Bite - Login");
@@ -27,6 +29,7 @@ public class LoginFrame extends JFrame implements ActionListener {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
         setResizable(false);
+        getContentPane().setBackground(Color.WHITE);
 
         // username
         lblUser = new JLabel("Username:");
@@ -77,7 +80,7 @@ public class LoginFrame extends JFrame implements ActionListener {
                 if(user.getUserRole() == Role.MANAGER){
                     new ManagerFrame(user, permService).setVisible(true);
                 }else{
-
+                    new CashierFrame(user, permService).setVisible(true);
                 }
                 this.dispose();
             }else{
