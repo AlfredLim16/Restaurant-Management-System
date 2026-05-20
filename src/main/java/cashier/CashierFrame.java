@@ -37,6 +37,7 @@ public class CashierFrame extends JFrame implements ActionListener {
         add(panelPayments);
 
         showPanel(panelOrders);
+        panelOrders.refreshOrders();
     }
 
     private void Services(){

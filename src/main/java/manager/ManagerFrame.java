@@ -61,6 +61,7 @@ public class ManagerFrame extends JFrame implements ActionListener {
         add(panelReports);
 
         showPanel(panelDashboard);
+        panelDashboard.refreshDashboard();
     }
 
     private void Services(){
