@@ -194,7 +194,7 @@ public class ManagerFrame extends JFrame implements ActionListener {
             "Tom Justine De Jesus",
             "Allysa Rose Tolarba",
             "Nolan Claveria",
-            "Aina Bulawin",
+            "Buthaina Al-harmali",
             "Alfred Lim"
         };
 
