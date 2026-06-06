@@ -179,9 +179,9 @@ public class OrdersPanel extends JPanel implements ActionListener {
     class NewOrderDialog extends JDialog implements ActionListener {
 
         private JSpinner spinQty;
+        private JSpinner spinTable;
         private JTable tableItems;
         private double currentTotal;
-        private JTextField txtTable;
         private JScrollPane scrollPane;
         private JComboBox<String> comboMenu;
         private DefaultTableModel modelItems;
@@ -206,9 +206,9 @@ public class OrdersPanel extends JPanel implements ActionListener {
             lblTable.setBounds(20, 20, 80, 25);
             add(lblTable);
 
-            txtTable = new JTextField();
-            txtTable.setBounds(100, 20, 150, 25);
-            add(txtTable);
+            spinTable = new JSpinner(new SpinnerNumberModel(1, 1, 99, 1));
+            spinTable.setBounds(100, 20, 80, 25);
+            add(spinTable);
 
             lblItem = new JLabel("Item:");
             lblItem.setBounds(20, 55, 80, 25);
@@ -300,11 +300,7 @@ public class OrdersPanel extends JPanel implements ActionListener {
                 }
                 refreshItems();
             }else if(e.getSource() == btnPlace){
-                String table = txtTable.getText().trim();
-                if(table.isEmpty()){
-                    JOptionPane.showMessageDialog(this, "Table number required.");
-                    return;
-                }
+                String table = String.valueOf(spinTable.getValue());
                 if(selectedItems.isEmpty()){
                     JOptionPane.showMessageDialog(this, "Add at least one item.");
                     return;
@@ -316,6 +312,8 @@ public class OrdersPanel extends JPanel implements ActionListener {
                     JOptionPane.showMessageDialog(parentFrame, "Order placed.");
                 }catch(ValidationException ex){
                     JOptionPane.showMessageDialog(this, ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+                }catch(user.InsufficientInventoryException ex){
+                    JOptionPane.showMessageDialog(this, ex.getMessage(), "Insufficient Inventory", JOptionPane.ERROR_MESSAGE);
                 }
             }else if(e.getSource() == btnCancel){
                 dispose();

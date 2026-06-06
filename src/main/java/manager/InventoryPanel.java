@@ -9,6 +9,7 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import javax.swing.JButton;
+import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -16,12 +17,22 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
 import javax.swing.JTable;
+import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import user.ValidationException;
 
 public class InventoryPanel extends JPanel implements ActionListener {
+
+    private static final String[] CATEGORIES = {
+        "Meat", "Seafood", "Vegetable", "Fruit", "Dairy", "Grain", "Spice", "Beverage", "Condiment", "Other"
+    };
+
+    private static final String[] UNITS = {
+        "kg", "g", "litter", "pcs", "pack"
+    };
+
     private final InventoryService inventoryService;
     private final JFrame parentFrame;
 
@@ -53,13 +64,13 @@ public class InventoryPanel extends JPanel implements ActionListener {
         add(lblSubTitle);
 
         JSeparator separator = new JSeparator();
-        separator.setBounds(20, 70, 940, 1);
+        separator.setBounds(20, 70, 1100, 1);
         separator.setForeground(Color.BLACK);
         add(separator);
 
         modelInventory = new DefaultTableModel(new String[]{"ID", "Name", "Category", "Qty", "Unit", "Cost", "Reorder", "Expiry", "Status"}, 0) {
             @Override
-            public boolean isCellEditable(int row, int collumn){
+            public boolean isCellEditable(int row, int col){
                 return false;
             }
         };
@@ -78,7 +89,7 @@ public class InventoryPanel extends JPanel implements ActionListener {
         }
 
         scrollInventory = new JScrollPane(tableInventory);
-        scrollInventory.setBounds(20, 80, 940, 400);
+        scrollInventory.setBounds(20, 80, 1100, 400);
         add(scrollInventory);
 
         btnInvAdd = new JButton("Add");
@@ -135,47 +146,67 @@ public class InventoryPanel extends JPanel implements ActionListener {
         }
     }
 
+    private String pickFromCombo(String title, String[] options, String current){
+        JComboBox<String> combo = new JComboBox<>(options);
+        if(current != null){
+            combo.setSelectedItem(current);
+        }
+        int result = JOptionPane.showConfirmDialog(parentFrame, combo, title, JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
+        if(result != JOptionPane.OK_OPTION){
+            return null;
+        }
+        return (String) combo.getSelectedItem();
+    }
+
     private void addInventory(){
-        String name = JOptionPane.showInputDialog(parentFrame, "Item name:");
-        if(name == null || name.trim().isEmpty()){
+        JTextField txtName = new JTextField();
+        JComboBox<String> comboCategory = new JComboBox<>(CATEGORIES);
+        JTextField txtQty = new JTextField();
+        JComboBox<String> comboUnit = new JComboBox<>(UNITS);
+        JTextField txtCost = new JTextField();
+        JTextField txtReorder = new JTextField();
+        JTextField txtSupplier = new JTextField();
+        JTextField txtExpiry = new JTextField();
+
+        Object[] fields = {
+            "Name:", txtName,
+            "Category:", comboCategory,
+            "Quantity:", txtQty,
+            "Unit:", comboUnit,
+            "Cost per unit:", txtCost,
+            "Reorder level:", txtReorder,
+            "Supplier:", txtSupplier,
+            "Expiry (yyyy-MM-dd, blank = none):", txtExpiry
+        };
+
+        int result = JOptionPane.showConfirmDialog(parentFrame, fields, "Add Inventory Item", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
+        if(result != JOptionPane.OK_OPTION){
             return;
         }
-        String category = JOptionPane.showInputDialog(parentFrame, "Category:");
-        if(category == null){
+
+        String name = txtName.getText().trim();
+        if(name.isEmpty()){
+            JOptionPane.showMessageDialog(parentFrame, "Name is required.", "Error", JOptionPane.ERROR_MESSAGE);
             return;
         }
-        String qtyStr = JOptionPane.showInputDialog(parentFrame, "Quantity:");
-        if(qtyStr == null){
-            return;
-        }
-        String unit = JOptionPane.showInputDialog(parentFrame, "Unit:");
-        if(unit == null){
-            return;
-        }
-        String costStr = JOptionPane.showInputDialog(parentFrame, "Cost per unit:");
-        if(costStr == null){
-            return;
-        }
-        String reorderStr = JOptionPane.showInputDialog(parentFrame, "Reorder level:");
-        if(reorderStr == null){
-            return;
-        }
-        String supplier = JOptionPane.showInputDialog(parentFrame, "Supplier:");
-        if(supplier == null){
-            return;
-        }
-        String expiry = JOptionPane.showInputDialog(parentFrame, "Expiry (yyyy-MM-dd), blank for none:");
+
+        String category = (String) comboCategory.getSelectedItem();
+        String unit = (String) comboUnit.getSelectedItem();
+        String expiry = txtExpiry.getText().trim();
 
         try{
-            int qty = Integer.parseInt(qtyStr);
-            double cost = Double.parseDouble(costStr);
-            int reorder = Integer.parseInt(reorderStr);
+            int qty = Integer.parseInt(txtQty.getText().trim());
+            double cost = Double.parseDouble(txtCost.getText().trim());
+            int reorder = Integer.parseInt(txtReorder.getText().trim());
+            String supplier = txtSupplier.getText().trim();
             LocalDate expDate = null;
-            if(expiry != null && !expiry.trim().isEmpty()){
+            if(!expiry.isEmpty()){
                 expDate = LocalDate.parse(expiry, DATE_FMT);
             }
             inventoryService.addInventoryItem(name, category, qty, unit, cost, reorder, supplier, expDate);
             refreshInventory();
+        }catch(NumberFormatException ex){
+            JOptionPane.showMessageDialog(parentFrame, "Invalid number value.", "Error", JOptionPane.ERROR_MESSAGE);
         }catch(ValidationException ex){
             JOptionPane.showMessageDialog(parentFrame, ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
         }
@@ -193,8 +224,10 @@ public class InventoryPanel extends JPanel implements ActionListener {
             return;
         }
         try{
-            inventoryService.updateQuantity(id, Integer.parseInt(input));
+            inventoryService.updateQuantity(id, Integer.parseInt(input.trim()));
             refreshInventory();
+        }catch(NumberFormatException ex){
+            JOptionPane.showMessageDialog(parentFrame, "Invalid quantity.", "Error", JOptionPane.ERROR_MESSAGE);
         }catch(ValidationException ex){
             JOptionPane.showMessageDialog(parentFrame, ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
         }
@@ -212,8 +245,10 @@ public class InventoryPanel extends JPanel implements ActionListener {
             return;
         }
         try{
-            inventoryService.restockInventory(id, Integer.parseInt(input));
+            inventoryService.restockInventory(id, Integer.parseInt(input.trim()));
             refreshInventory();
+        }catch(NumberFormatException ex){
+            JOptionPane.showMessageDialog(parentFrame, "Invalid quantity.", "Error", JOptionPane.ERROR_MESSAGE);
         }catch(ValidationException ex){
             JOptionPane.showMessageDialog(parentFrame, ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
         }
@@ -250,5 +285,4 @@ public class InventoryPanel extends JPanel implements ActionListener {
             deleteInventory();
         }
     }
-
 }

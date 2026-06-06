@@ -3,17 +3,26 @@ package cashier;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
+import manager.IInventoryItem;
+import manager.IMenuItemIngredient;
+import manager.InventoryItem;
+import manager.MenuItemIngredient;
 import user.AbstractAppService;
+import user.InsufficientInventoryException;
 import user.ValidationException;
 
 public class OrderService extends AbstractAppService {
 
     private final IOrder _order;
     private final IMenuItem _menuItem;
+    private final IMenuItemIngredient _ingredient;
+    private final IInventoryItem _inventoryItem;
 
-    public OrderService(IOrder order, IMenuItem menuItem){
+    public OrderService(IOrder order, IMenuItem menuItem, IMenuItemIngredient ingredient, IInventoryItem inventoryItem){
         this._order = order;
         this._menuItem = menuItem;
+        this._ingredient = ingredient;
+        this._inventoryItem = inventoryItem;
     }
 
     public long getActiveOrderCount(){
@@ -58,7 +67,7 @@ public class OrderService extends AbstractAppService {
         return new ArrayList<>(_menuItem.findAvailable());
     }
 
-    public Order createOrder(String tableNumber, ArrayList<OrderItem> orderItems) throws ValidationException{
+    public Order createOrder(String tableNumber, ArrayList<OrderItem> orderItems) throws ValidationException, InsufficientInventoryException{
         ensureNotEmpty(tableNumber, "Table number");
         ensureNotNullNotEmpty(orderItems, "Order items");
 
@@ -66,6 +75,41 @@ public class OrderService extends AbstractAppService {
             MenuItem requestedMenuItem = orderItem.getLinkedMenuItem();
             ensureMenuItemAvailable(requestedMenuItem, requestedMenuItem.getMenuItemId());
             ensurePositive(orderItem.getOrderItemQuantity(), "Item quantity");
+        }
+
+        for(OrderItem orderItem : orderItems){
+            int menuItemId = orderItem.getLinkedMenuItem().getMenuItemId();
+            int orderedQty = orderItem.getOrderItemQuantity();
+            ArrayList<MenuItemIngredient> ingredients = _ingredient.getByMenuItemId(menuItemId);
+            for(MenuItemIngredient ingredient : ingredients){
+                InventoryItem invItem = _inventoryItem.get(ingredient.getInventoryItemId());
+                if(invItem == null){
+                    continue;
+                }
+                int needed = (int) Math.ceil(ingredient.getQuantityRequired() * orderedQty);
+                if(invItem.getInventoryQuantity() < needed){
+                    throw new InsufficientInventoryException(
+                        "Not enough inventory for '" + invItem.getInventoryItemName() +
+                        "'. Available: " + invItem.getInventoryQuantity() +
+                        ", Required: " + needed
+                    );
+                }
+            }
+        }
+
+        for(OrderItem orderItem : orderItems){
+            int menuItemId = orderItem.getLinkedMenuItem().getMenuItemId();
+            int orderedQty = orderItem.getOrderItemQuantity();
+            ArrayList<MenuItemIngredient> ingredients = _ingredient.getByMenuItemId(menuItemId);
+            for(MenuItemIngredient ingredient : ingredients){
+                InventoryItem invItem = _inventoryItem.get(ingredient.getInventoryItemId());
+                if(invItem == null){
+                    continue;
+                }
+                int needed = (int) Math.ceil(ingredient.getQuantityRequired() * orderedQty);
+                invItem.setInventoryQuantity(invItem.getInventoryQuantity() - needed);
+                _inventoryItem.update(invItem);
+            }
         }
 
         double calculatedTotalAmount = calculateOrderTotal(orderItems);

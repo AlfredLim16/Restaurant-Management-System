@@ -1,10 +1,17 @@
 package cashier;
 
+import cashier.IMenuItem;
+import cashier.IOrder;
+import cashier.IPayment;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.net.URL;
 import javax.swing.*;
+import manager.DbInventoryItem;
+import manager.DbMenuItemIngredient;
+import manager.IInventoryItem;
+import manager.IMenuItemIngredient;
 import user.IPermission;
 import user.LoginFrame;
 import user.User;
@@ -45,7 +52,9 @@ public class CashierFrame extends JFrame implements ActionListener {
         IOrder orderData = new DbOrder();
         IPayment paymentData = new DbPayment();
         IMenuItem menuData = new DbMenuItem();
-        orderService = new OrderService(orderData, menuData);
+        IMenuItemIngredient ingredientData = new DbMenuItemIngredient();
+        IInventoryItem inventoryData = new DbInventoryItem();
+        orderService = new OrderService(orderData, menuData, ingredientData, inventoryData);
         paymentService = new PaymentService(paymentData, orderData);
     }
 

@@ -72,7 +72,7 @@ public class FoodWastePanel extends JPanel implements ActionListener {
         add(lblSubTitle);
 
         separator = new JSeparator();
-        separator.setBounds(20, 70, 940, 1);
+        separator.setBounds(20, 70, 1100, 1);
         separator.setForeground(Color.BLACK);
         add(separator);
 
@@ -139,7 +139,7 @@ public class FoodWastePanel extends JPanel implements ActionListener {
         }
 
         scrollWaste = new JScrollPane(tableWaste);
-        scrollWaste.setBounds(320, 120, 640, 300);
+        scrollWaste.setBounds(320, 120, 800, 300);
         add(scrollWaste);
 
         lblReason = new JLabel("Reason:");

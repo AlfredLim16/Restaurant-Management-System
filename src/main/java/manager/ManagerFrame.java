@@ -25,17 +25,19 @@ public class ManagerFrame extends JFrame implements ActionListener {
     private PaymentService paymentService;
     private InventoryService inventoryService;
     private FoodWasteService foodWasteService;
+    private MenuItemService menuItemService;
     private DashboardPanel panelDashboard;
     private InventoryPanel panelInventory;
     private FoodWastePanel panelFoodWaste;
     private ReportsPanel panelReports;
+    private MenuItemPanel panelMenuItem;
     private JPanel panelAbout;
-    private JButton btnDashboard, btnInventory, btnFoodWaste, btnReports, btnAbout, btnLogout;
+    private JButton btnDashboard, btnInventory, btnFoodWaste, btnReports, btnMenuItem, btnAbout, btnLogout;
 
     public ManagerFrame(User user, IPermission permission){
         setTitle("Byte Bite - Manager");
         setLayout(null);
-        setSize(1040, 700);
+        setSize(1200, 700);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
         setResizable(false);
@@ -46,20 +48,24 @@ public class ManagerFrame extends JFrame implements ActionListener {
         About();
 
         panelDashboard = new DashboardPanel(reportService);
-        panelDashboard.setBounds(20, 50, 975, 600);
+        panelDashboard.setBounds(20, 50, 1175, 600);
         add(panelDashboard);
 
         panelInventory = new InventoryPanel(inventoryService, this);
-        panelInventory.setBounds(20, 50, 975, 600);
+        panelInventory.setBounds(20, 50, 1175, 600);
         add(panelInventory);
 
         panelFoodWaste = new FoodWastePanel(foodWasteService, this);
-        panelFoodWaste.setBounds(20, 50, 975, 600);
+        panelFoodWaste.setBounds(20, 50, 1175, 600);
         add(panelFoodWaste);
 
         panelReports = new ReportsPanel(reportService, this);
-        panelReports.setBounds(20, 50, 975, 600);
+        panelReports.setBounds(20, 50, 1175, 600);
         add(panelReports);
+
+        panelMenuItem = new MenuItemPanel(menuItemService, this);
+        panelMenuItem.setBounds(20, 50, 1175, 600);
+        add(panelMenuItem);
 
         showPanel(panelDashboard);
         panelDashboard.refreshDashboard();
@@ -71,12 +77,14 @@ public class ManagerFrame extends JFrame implements ActionListener {
         IInventoryItem inventoryData = new DbInventoryItem();
         IFoodWaste foodWasteData = new DbFoodWaste();
         IMenuItem menuData = new DbMenuItem();
+        IMenuItemIngredient ingredientData = new DbMenuItemIngredient();
 
-        orderService = new OrderService(orderData, menuData);
+        orderService = new OrderService(orderData, menuData, ingredientData, inventoryData);
         paymentService = new PaymentService(paymentData, orderData);
         inventoryService = new InventoryService(inventoryData);
         foodWasteService = new FoodWasteService(foodWasteData);
         reportService = new ReportService(orderData, paymentData, inventoryData, foodWasteData);
+        menuItemService = new MenuItemService(menuData, ingredientData, inventoryData);
     }
 
     private ImageIcon loadIcon(String filename, int size){
@@ -117,6 +125,20 @@ public class ManagerFrame extends JFrame implements ActionListener {
         btnInventory.setHorizontalAlignment(SwingConstants.LEFT);
         btnInventory.addActionListener(this);
         add(btnInventory);
+        x += w + gap;
+
+        btnMenuItem = new JButton("Menu Items", loadIcon("order.png", 18));
+        btnMenuItem.setOpaque(true);
+        btnMenuItem.setIconTextGap(12);
+        btnMenuItem.setBounds(x, y, w, h);
+        btnMenuItem.setFocusPainted(false);
+        //btnMenuItem.setBorderPainted(false);
+        btnMenuItem.setContentAreaFilled(false);
+        btnMenuItem.setBackground(Color.WHITE);
+        btnMenuItem.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        btnMenuItem.setHorizontalAlignment(SwingConstants.LEFT);
+        btnMenuItem.addActionListener(this);
+        add(btnMenuItem);
         x += w + gap;
 
         btnFoodWaste = new JButton("Food Waste", loadIcon("foodWaste.png", 18));
@@ -177,7 +199,7 @@ public class ManagerFrame extends JFrame implements ActionListener {
 
     private void About(){
         panelAbout = new JPanel(null);
-        panelAbout.setBounds(20, 50, 975, 600);
+        panelAbout.setBounds(20, 50, 1175, 600);
         panelAbout.setBackground(Color.WHITE);
         add(panelAbout);
 
@@ -237,6 +259,7 @@ public class ManagerFrame extends JFrame implements ActionListener {
         panelInventory.setVisible(false);
         panelFoodWaste.setVisible(false);
         panelReports.setVisible(false);
+        panelMenuItem.setVisible(false);
         panelAbout.setVisible(false);
         panel.setVisible(true);
     }
@@ -254,6 +277,9 @@ public class ManagerFrame extends JFrame implements ActionListener {
             panelFoodWaste.refreshFoodWaste();
         }else if(e.getSource() == btnReports){
             showPanel(panelReports);
+        }else if(e.getSource() == btnMenuItem){
+            showPanel(panelMenuItem);
+            panelMenuItem.refreshMenuItems();
         }else if(e.getSource() == btnAbout){
             showPanel(panelAbout);
         }else if(e.getSource() == btnLogout){

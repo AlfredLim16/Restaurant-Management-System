@@ -62,6 +62,15 @@ CREATE TABLE inventory_items (
     expiry_date DATE
 );
 
+CREATE TABLE menu_item_ingredients (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    menu_item_id INT NOT NULL,
+    inventory_item_id INT NOT NULL,
+    quantity_required DOUBLE NOT NULL DEFAULT 1,
+    FOREIGN KEY (menu_item_id) REFERENCES menu_items(menu_item_id),
+    FOREIGN KEY (inventory_item_id) REFERENCES inventory_items(inventory_item_id)
+);
+
 CREATE TABLE food_waste (
     food_waste_id INT AUTO_INCREMENT PRIMARY KEY,
     item_name VARCHAR(100) NOT NULL,

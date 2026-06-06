@@ -34,31 +34,31 @@ public class DashboardPanel extends JPanel {
         add(lblSubTitle);
 
         separator = new JSeparator();
-        separator.setBounds(20, 70, 940, 1);
+        separator.setBounds(20, 70, 1100, 1);
         separator.setForeground(Color.BLACK);
         add(separator);
 
         lblDashRevenue = dashboardCard("Total Revenue", 20, 80, new Color(0, 143, 74));
-        lblDashActive = dashboardCard("Active Orders", 260, 80, new Color(30, 120, 200));
-        lblDashCompleted = dashboardCard("Completed Orders", 500, 80, new Color(85, 85, 85));
-        lblDashLow = dashboardCard("Low Stock Alerts", 740, 80, new Color(200, 50, 50));
+        lblDashActive = dashboardCard("Active Orders", 300, 80, new Color(30, 120, 200));
+        lblDashCompleted = dashboardCard("Completed Orders", 580, 80, new Color(85, 85, 85));
+        lblDashLow = dashboardCard("Low Stock Alerts", 860, 80, new Color(200, 50, 50));
     }
 
     private JLabel dashboardCard(String title, int x, int y, Color color) {
         JPanel card = new JPanel(null);
         card.setBackground(Color.WHITE);
         card.setBorder(BorderFactory.createLineBorder(new Color(220, 220, 220)));
-        card.setBounds(x, y, 220, 100);
+        card.setBounds(x, y, 260, 100);
         add(card);
 
         lblCardTitle = new JLabel(title, SwingConstants.CENTER);
-        lblCardTitle.setBounds(10, 10, 200, 20);
+        lblCardTitle.setBounds(10, 10, 250, 20);
         lblCardTitle.setFont(new Font("Arial", Font.PLAIN, 12));
         lblCardTitle.setForeground(new Color(85, 85, 85));
         card.add(lblCardTitle);
 
         lblCardValue = new JLabel("0", SwingConstants.CENTER);
-        lblCardValue.setBounds(10, 35, 200, 40);
+        lblCardValue.setBounds(10, 35, 250, 40);
         lblCardValue.setFont(new Font("Arial", Font.BOLD, 24));
         lblCardValue.setForeground(color);
         card.add(lblCardValue);

@@ -13,7 +13,7 @@ public class DbOrder implements IOrder {
 
     private ArrayList<OrderItem> getOrderItems(Connection connection, int orderId) throws SQLException{
         ArrayList<OrderItem> items = new ArrayList<>();
-        String sql = "SELECT oi.order_item_id, oi.quantity, m.menu_item_id, m.name, m.price, m.category, m.is_available " + "FROM order_items oi JOIN menu_items m ON oi.menu_item_id = m.menu_item_id " + "WHERE oi.order_id = ?";
+        String sql = "SELECT oi.id AS order_item_id, oi.quantity, m.menu_item_id, m.name, m.price, m.category, m.is_available " + "FROM order_items oi JOIN menu_items m ON oi.menu_item_id = m.menu_item_id " + "WHERE oi.order_id = ?";
         try(PreparedStatement statement = connection.prepareStatement(sql)){
             statement.setInt(1, orderId);
             try(ResultSet rs = statement.executeQuery()){
