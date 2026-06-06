@@ -6,6 +6,7 @@ import java.awt.event.ActionListener;
 import java.net.URL;
 import javax.swing.*;
 import user.IPermission;
+import user.LoginFrame;
 import user.User;
 
 public class CashierFrame extends JFrame implements ActionListener {
@@ -41,9 +42,9 @@ public class CashierFrame extends JFrame implements ActionListener {
     }
 
     private void Services(){
-        IOrder orderData = new InMemoryOrder();
-        IPayment paymentData = new InMemoryPayment();
-        IMenuItem menuData = new InMemoryMenuItem();
+        IOrder orderData = new DbOrder();
+        IPayment paymentData = new DbPayment();
+        IMenuItem menuData = new DbMenuItem();
         orderService = new OrderService(orderData, menuData);
         paymentService = new PaymentService(paymentData, orderData);
     }
@@ -117,7 +118,9 @@ public class CashierFrame extends JFrame implements ActionListener {
             showPanel(panelPayments);
             panelPayments.refreshPayments();
         }else if(e.getSource() == btnLogout){
-            System.exit(0);
+            dispose();
+            LoginFrame loginFrame = new LoginFrame();
+            loginFrame.setVisible(true);
         }
     }
 

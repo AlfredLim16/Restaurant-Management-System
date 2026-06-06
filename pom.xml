@@ -10,4 +10,12 @@
         <maven.compiler.release>19</maven.compiler.release>
         <exec.mainClass>restaurantmanagementsystem.RestaurantManagementSystem</exec.mainClass>
     </properties>
+    <dependencies>
+        <dependency>
+            <groupId>mysql</groupId>
+            <artifactId>mysql-connector-java</artifactId>
+            <version>8.0.33</version>
+            <scope>compile</scope>
+        </dependency>
+    </dependencies>
 </project>

@@ -60,7 +60,7 @@ public class LoginFrame extends JFrame implements ActionListener {
         lblError.setForeground(Color.RED);
         add(lblError);
 
-        userData = new InMemoryUser();
+        userData = new DbUser();
         authService = new AuthenticationService(userData);
         permService = new PermissionService(userData);
     }

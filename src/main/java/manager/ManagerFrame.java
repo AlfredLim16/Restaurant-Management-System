@@ -1,11 +1,11 @@
 package manager;
 
+import cashier.DbMenuItem;
+import cashier.DbOrder;
+import cashier.DbPayment;
 import cashier.IMenuItem;
 import cashier.IOrder;
 import cashier.IPayment;
-import cashier.InMemoryMenuItem;
-import cashier.InMemoryOrder;
-import cashier.InMemoryPayment;
 import cashier.OrderService;
 import cashier.PaymentService;
 import java.awt.*;
@@ -14,6 +14,7 @@ import java.awt.event.ActionListener;
 import java.net.URL;
 import javax.swing.*;
 import user.IPermission;
+import user.LoginFrame;
 import user.User;
 
 public class ManagerFrame extends JFrame implements ActionListener {
@@ -65,11 +66,11 @@ public class ManagerFrame extends JFrame implements ActionListener {
     }
 
     private void Services(){
-        IOrder orderData = new InMemoryOrder();
-        IPayment paymentData = new InMemoryPayment();
-        IInventoryItem inventoryData = new InMemoryInventoryItem();
-        IFoodWaste foodWasteData = new InMemoryFoodWaste();
-        IMenuItem menuData = new InMemoryMenuItem();
+        IOrder orderData = new DbOrder();
+        IPayment paymentData = new DbPayment();
+        IInventoryItem inventoryData = new DbInventoryItem();
+        IFoodWaste foodWasteData = new DbFoodWaste();
+        IMenuItem menuData = new DbMenuItem();
 
         orderService = new OrderService(orderData, menuData);
         paymentService = new PaymentService(paymentData, orderData);
@@ -256,7 +257,9 @@ public class ManagerFrame extends JFrame implements ActionListener {
         }else if(e.getSource() == btnAbout){
             showPanel(panelAbout);
         }else if(e.getSource() == btnLogout){
-            System.exit(0);
+            dispose();
+            LoginFrame loginFrame = new LoginFrame();
+            loginFrame.setVisible(true);
         }
     }
 }
