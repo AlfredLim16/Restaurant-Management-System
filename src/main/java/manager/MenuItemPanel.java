@@ -61,9 +61,34 @@ public class MenuItemPanel extends JPanel implements ActionListener {
         add(lblSubTitle);
 
         JSeparator separator = new JSeparator();
-        separator.setBounds(20, 70, 1100, 1);
+        separator.setBounds(20, 70, 1260, 1);
         separator.setForeground(Color.BLACK);
         add(separator);
+
+        btnAdd = new JButton("Add");
+        btnAdd.setBounds(20, 80, 80, 30);
+        btnAdd.addActionListener(this);
+        add(btnAdd);
+
+        btnUpdate = new JButton("Update");
+        btnUpdate.setBounds(110, 80, 90, 30);
+        btnUpdate.addActionListener(this);
+        add(btnUpdate);
+
+        btnToggle = new JButton("Toggle Available");
+        btnToggle.setBounds(210, 80, 140, 30);
+        btnToggle.addActionListener(this);
+        add(btnToggle);
+
+        btnDelete = new JButton("Delete");
+        btnDelete.setBounds(360, 80, 80, 30);
+        btnDelete.addActionListener(this);
+        add(btnDelete);
+
+        btnViewIngredients = new JButton("View Ingredients");
+        btnViewIngredients.setBounds(450, 80, 140, 30);
+        btnViewIngredients.addActionListener(this);
+        add(btnViewIngredients);
 
         modelMenuItem = new DefaultTableModel(new String[]{"ID", "Name", "Category", "Price", "Available", "Ingredients"}, 0){
             @Override
@@ -86,33 +111,8 @@ public class MenuItemPanel extends JPanel implements ActionListener {
         }
 
         scrollMenuItem = new JScrollPane(tableMenuItem);
-        scrollMenuItem.setBounds(20, 80, 1100, 400);
+        scrollMenuItem.setBounds(20, 120, 1260, 450);
         add(scrollMenuItem);
-
-        btnAdd = new JButton("Add");
-        btnAdd.setBounds(20, 500, 80, 30);
-        btnAdd.addActionListener(this);
-        add(btnAdd);
-
-        btnUpdate = new JButton("Update");
-        btnUpdate.setBounds(110, 500, 90, 30);
-        btnUpdate.addActionListener(this);
-        add(btnUpdate);
-
-        btnToggle = new JButton("Toggle Available");
-        btnToggle.setBounds(210, 500, 140, 30);
-        btnToggle.addActionListener(this);
-        add(btnToggle);
-
-        btnDelete = new JButton("Delete");
-        btnDelete.setBounds(360, 500, 80, 30);
-        btnDelete.addActionListener(this);
-        add(btnDelete);
-
-        btnViewIngredients = new JButton("View Ingredients");
-        btnViewIngredients.setBounds(450, 500, 140, 30);
-        btnViewIngredients.addActionListener(this);
-        add(btnViewIngredients);
 
         refreshMenuItems();
     }

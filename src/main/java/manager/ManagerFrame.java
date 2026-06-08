@@ -13,7 +13,9 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.net.URL;
 import javax.swing.*;
+import user.DbUser;
 import user.IPermission;
+import user.IUser;
 import user.LoginFrame;
 import user.User;
 
@@ -26,18 +28,20 @@ public class ManagerFrame extends JFrame implements ActionListener {
     private InventoryService inventoryService;
     private FoodWasteService foodWasteService;
     private MenuItemService menuItemService;
+    private UserManagementService userManagementService;
     private DashboardPanel panelDashboard;
     private InventoryPanel panelInventory;
     private FoodWastePanel panelFoodWaste;
     private ReportsPanel panelReports;
     private MenuItemPanel panelMenuItem;
+    private UserManagementPanel panelUsers;
     private JPanel panelAbout;
-    private JButton btnDashboard, btnInventory, btnFoodWaste, btnReports, btnMenuItem, btnAbout, btnLogout;
+    private JButton btnDashboard, btnInventory, btnFoodWaste, btnReports, btnMenuItem, btnUsers, btnAbout, btnLogout;
 
     public ManagerFrame(User user, IPermission permission){
         setTitle("Byte Bite - Manager");
         setLayout(null);
-        setSize(1200, 700);
+        setSize(1360, 700);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
         setResizable(false);
@@ -48,24 +52,28 @@ public class ManagerFrame extends JFrame implements ActionListener {
         About();
 
         panelDashboard = new DashboardPanel(reportService);
-        panelDashboard.setBounds(20, 50, 1175, 600);
+        panelDashboard.setBounds(20, 50, 1280, 600);
         add(panelDashboard);
 
         panelInventory = new InventoryPanel(inventoryService, this);
-        panelInventory.setBounds(20, 50, 1175, 600);
+        panelInventory.setBounds(20, 50, 1280, 600);
         add(panelInventory);
 
-        panelFoodWaste = new FoodWastePanel(foodWasteService, this);
-        panelFoodWaste.setBounds(20, 50, 1175, 600);
+        panelFoodWaste = new FoodWastePanel(foodWasteService, menuItemService, this);
+        panelFoodWaste.setBounds(20, 50, 1280, 600);
         add(panelFoodWaste);
 
         panelReports = new ReportsPanel(reportService, this);
-        panelReports.setBounds(20, 50, 1175, 600);
+        panelReports.setBounds(20, 50, 1280, 600);
         add(panelReports);
 
         panelMenuItem = new MenuItemPanel(menuItemService, this);
-        panelMenuItem.setBounds(20, 50, 1175, 600);
+        panelMenuItem.setBounds(20, 50, 1280, 600);
         add(panelMenuItem);
+
+        panelUsers = new UserManagementPanel(userManagementService, this);
+        panelUsers.setBounds(20, 50, 1280, 600);
+        add(panelUsers);
 
         showPanel(panelDashboard);
         panelDashboard.refreshDashboard();
@@ -78,6 +86,7 @@ public class ManagerFrame extends JFrame implements ActionListener {
         IFoodWaste foodWasteData = new DbFoodWaste();
         IMenuItem menuData = new DbMenuItem();
         IMenuItemIngredient ingredientData = new DbMenuItemIngredient();
+        IUser userData = new DbUser();
 
         orderService = new OrderService(orderData, menuData, ingredientData, inventoryData);
         paymentService = new PaymentService(paymentData, orderData);
@@ -85,6 +94,7 @@ public class ManagerFrame extends JFrame implements ActionListener {
         foodWasteService = new FoodWasteService(foodWasteData);
         reportService = new ReportService(orderData, paymentData, inventoryData, foodWasteData);
         menuItemService = new MenuItemService(menuData, ingredientData, inventoryData);
+        userManagementService = new UserManagementService(userData);
     }
 
     private ImageIcon loadIcon(String filename, int size){
@@ -169,6 +179,20 @@ public class ManagerFrame extends JFrame implements ActionListener {
         add(btnReports);
         x += w + gap;
 
+        btnUsers = new JButton("Users", loadIcon("settings.png", 18));
+        btnUsers.setOpaque(true);
+        btnUsers.setIconTextGap(12);
+        btnUsers.setBounds(x, y, w, h);
+        btnUsers.setFocusPainted(false);
+        //btnUsers.setBorderPainted(false);
+        btnUsers.setContentAreaFilled(false);
+        btnUsers.setBackground(Color.WHITE);
+        btnUsers.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        btnUsers.setHorizontalAlignment(SwingConstants.LEFT);
+        btnUsers.addActionListener(this);
+        add(btnUsers);
+        x += w + gap;
+
         btnAbout = new JButton("About", loadIcon("about.png", 18));
         btnAbout.setOpaque(true);
         btnAbout.setIconTextGap(12);
@@ -199,7 +223,7 @@ public class ManagerFrame extends JFrame implements ActionListener {
 
     private void About(){
         panelAbout = new JPanel(null);
-        panelAbout.setBounds(20, 50, 1175, 600);
+        panelAbout.setBounds(20, 50, 1280, 600);
         panelAbout.setBackground(Color.WHITE);
         add(panelAbout);
 
@@ -231,9 +255,9 @@ public class ManagerFrame extends JFrame implements ActionListener {
 
         int startX = 20;
         int startY = 110;
-        int imgW = 160;
-        int imgH = 160;
-        int gap = 30;
+        int imgW = 220;
+        int imgH = 220;
+        int gap = 40;
 
         for(int i = 0; i < members.length; i++){
             JLabel imgLabel = new JLabel("", SwingConstants.CENTER);
@@ -260,6 +284,7 @@ public class ManagerFrame extends JFrame implements ActionListener {
         panelFoodWaste.setVisible(false);
         panelReports.setVisible(false);
         panelMenuItem.setVisible(false);
+        panelUsers.setVisible(false);
         panelAbout.setVisible(false);
         panel.setVisible(true);
     }
@@ -280,6 +305,9 @@ public class ManagerFrame extends JFrame implements ActionListener {
         }else if(e.getSource() == btnMenuItem){
             showPanel(panelMenuItem);
             panelMenuItem.refreshMenuItems();
+        }else if(e.getSource() == btnUsers){
+            showPanel(panelUsers);
+            panelUsers.refreshUsers();
         }else if(e.getSource() == btnAbout){
             showPanel(panelAbout);
         }else if(e.getSource() == btnLogout){

@@ -47,6 +47,16 @@ public class PaymentsPanel extends JPanel implements ActionListener {
         separator.setForeground(Color.BLACK);
         add(separator);
 
+        btnProcess = new JButton("Process");
+        btnProcess.setBounds(20, 80, 90, 30);
+        btnProcess.addActionListener(this);
+        add(btnProcess);
+
+        btnRefund = new JButton("Refund");
+        btnRefund.setBounds(120, 80, 90, 30);
+        btnRefund.addActionListener(this);
+        add(btnRefund);
+        
         modelPayments = new DefaultTableModel(new String[]{"ID", "Order ID", "Amount", "Tip", "Total", "Method", "Status", "TXN"}, 0){
             @Override
             public boolean isCellEditable(int r, int c){
@@ -68,18 +78,8 @@ public class PaymentsPanel extends JPanel implements ActionListener {
         }
 
         scrollPayments = new JScrollPane(tablePayments);
-        scrollPayments.setBounds(20, 80, 840, 350);
+        scrollPayments.setBounds(20, 120, 840, 350);
         add(scrollPayments);
-
-        btnProcess = new JButton("Process");
-        btnProcess.setBounds(20, 450, 90, 30);
-        btnProcess.addActionListener(this);
-        add(btnProcess);
-
-        btnRefund = new JButton("Refund");
-        btnRefund.setBounds(120, 450, 90, 30);
-        btnRefund.addActionListener(this);
-        add(btnRefund);
 
         refreshPayments();
     }

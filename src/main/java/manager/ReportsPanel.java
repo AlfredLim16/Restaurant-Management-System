@@ -43,7 +43,7 @@ public class ReportsPanel extends JPanel implements ActionListener {
         add(lblSubTitle);
 
         separator = new JSeparator();
-        separator.setBounds(20, 70, 1100, 1);
+        separator.setBounds(20, 70, 1260, 1);
         separator.setForeground(Color.BLACK);
         add(separator);
 
@@ -88,7 +88,7 @@ public class ReportsPanel extends JPanel implements ActionListener {
         }
 
         scrollReport = new JScrollPane(tableReport);
-        scrollReport.setBounds(20, 120, 1100, 450);
+        scrollReport.setBounds(20, 120, 1260, 450);
         add(scrollReport);
     }
 

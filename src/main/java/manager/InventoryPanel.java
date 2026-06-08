@@ -64,9 +64,29 @@ public class InventoryPanel extends JPanel implements ActionListener {
         add(lblSubTitle);
 
         JSeparator separator = new JSeparator();
-        separator.setBounds(20, 70, 1100, 1);
+        separator.setBounds(20, 70, 1260, 1);
         separator.setForeground(Color.BLACK);
         add(separator);
+
+        btnInvAdd = new JButton("Add");
+        btnInvAdd.setBounds(20, 80, 80, 30);
+        btnInvAdd.addActionListener(this);
+        add(btnInvAdd);
+
+        btnInvUpdate = new JButton("Update Quantity");
+        btnInvUpdate.setBounds(110, 80, 130, 30);
+        btnInvUpdate.addActionListener(this);
+        add(btnInvUpdate);
+
+        btnInvRestock = new JButton("Restock");
+        btnInvRestock.setBounds(250, 80, 90, 30);
+        btnInvRestock.addActionListener(this);
+        add(btnInvRestock);
+
+        btnInvDelete = new JButton("Delete");
+        btnInvDelete.setBounds(350, 80, 90, 30);
+        btnInvDelete.addActionListener(this);
+        add(btnInvDelete);
 
         modelInventory = new DefaultTableModel(new String[]{"ID", "Name", "Category", "Qty", "Unit", "Cost", "Reorder", "Expiry", "Status"}, 0) {
             @Override
@@ -89,28 +109,8 @@ public class InventoryPanel extends JPanel implements ActionListener {
         }
 
         scrollInventory = new JScrollPane(tableInventory);
-        scrollInventory.setBounds(20, 80, 1100, 400);
+        scrollInventory.setBounds(20, 120, 1260, 450);
         add(scrollInventory);
-
-        btnInvAdd = new JButton("Add");
-        btnInvAdd.setBounds(20, 500, 80, 30);
-        btnInvAdd.addActionListener(this);
-        add(btnInvAdd);
-
-        btnInvUpdate = new JButton("Update Quantity");
-        btnInvUpdate.setBounds(110, 500, 130, 30);
-        btnInvUpdate.addActionListener(this);
-        add(btnInvUpdate);
-
-        btnInvRestock = new JButton("Restock");
-        btnInvRestock.setBounds(250, 500, 90, 30);
-        btnInvRestock.addActionListener(this);
-        add(btnInvRestock);
-
-        btnInvDelete = new JButton("Delete");
-        btnInvDelete.setBounds(350, 500, 90, 30);
-        btnInvDelete.addActionListener(this);
-        add(btnInvDelete);
 
         refreshInventory();
     }

@@ -1,8 +1,5 @@
 package cashier;
 
-import cashier.IMenuItem;
-import cashier.IOrder;
-import cashier.IPayment;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;

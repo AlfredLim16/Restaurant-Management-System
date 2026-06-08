@@ -34,21 +34,21 @@ public class DashboardPanel extends JPanel {
         add(lblSubTitle);
 
         separator = new JSeparator();
-        separator.setBounds(20, 70, 1100, 1);
+        separator.setBounds(20, 70, 1260, 1);
         separator.setForeground(Color.BLACK);
         add(separator);
 
         lblDashRevenue = dashboardCard("Total Revenue", 20, 80, new Color(0, 143, 74));
-        lblDashActive = dashboardCard("Active Orders", 300, 80, new Color(30, 120, 200));
-        lblDashCompleted = dashboardCard("Completed Orders", 580, 80, new Color(85, 85, 85));
-        lblDashLow = dashboardCard("Low Stock Alerts", 860, 80, new Color(200, 50, 50));
+        lblDashActive = dashboardCard("Active Orders", 340, 80, new Color(30, 120, 200));
+        lblDashCompleted = dashboardCard("Completed Orders", 660, 80, new Color(85, 85, 85));
+        lblDashLow = dashboardCard("Low Stock Alerts", 980, 80, new Color(200, 50, 50));
     }
 
     private JLabel dashboardCard(String title, int x, int y, Color color) {
         JPanel card = new JPanel(null);
         card.setBackground(Color.WHITE);
         card.setBorder(BorderFactory.createLineBorder(new Color(220, 220, 220)));
-        card.setBounds(x, y, 260, 100);
+        card.setBounds(x, y, 300, 100);
         add(card);
 
         lblCardTitle = new JLabel(title, SwingConstants.CENTER);

@@ -84,5 +84,4 @@ CREATE TABLE food_waste (
 );
 
 INSERT INTO users (username, password, role) VALUES
-('manager', 'manager123', 'MANAGER'),
-('cashier', 'cashier123', 'CASHIER');
+('manager', 'manager123', 'MANAGER');

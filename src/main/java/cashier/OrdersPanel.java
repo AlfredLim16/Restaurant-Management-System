@@ -45,6 +45,21 @@ public class OrdersPanel extends JPanel implements ActionListener {
         separator.setForeground(Color.BLACK);
         add(separator);
 
+        btnNewOrder = new JButton("New Order");
+        btnNewOrder.setBounds(20, 80, 100, 30);
+        btnNewOrder.addActionListener(this);
+        add(btnNewOrder);
+
+        btnUpdateStatus = new JButton("Update Status");
+        btnUpdateStatus.setBounds(130, 80, 150, 30);
+        btnUpdateStatus.addActionListener(this);
+        add(btnUpdateStatus);
+
+        btnViewDetails = new JButton("View Details");
+        btnViewDetails.setBounds(290, 80, 110, 30);
+        btnViewDetails.addActionListener(this);
+        add(btnViewDetails);
+
         modelOrders = new DefaultTableModel(new String[]{"ID", "Table", "Status", "Total", "Date", "Items"}, 0) {
             @Override
             public boolean isCellEditable(int r, int c){
@@ -66,23 +81,8 @@ public class OrdersPanel extends JPanel implements ActionListener {
         }
 
         scrollOrders = new JScrollPane(tableOrders);
-        scrollOrders.setBounds(20, 80, 840, 350);
+        scrollOrders.setBounds(20, 120, 840, 350);
         add(scrollOrders);
-
-        btnNewOrder = new JButton("New Order");
-        btnNewOrder.setBounds(20, 450, 100, 30);
-        btnNewOrder.addActionListener(this);
-        add(btnNewOrder);
-
-        btnUpdateStatus = new JButton("Update Status");
-        btnUpdateStatus.setBounds(130, 450, 150, 30);
-        btnUpdateStatus.addActionListener(this);
-        add(btnUpdateStatus);
-
-        btnViewDetails = new JButton("View Details");
-        btnViewDetails.setBounds(290, 450, 110, 30);
-        btnViewDetails.addActionListener(this);
-        add(btnViewDetails);
 
         refreshOrders();
     }
