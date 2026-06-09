@@ -62,6 +62,10 @@ public class PaymentService extends AbstractAppService {
         return new ArrayList<>(_payment.findByStatus(PaymentStatus.PENDING));
     }
 
+    public ArrayList<Payment> getPaymentsByDate(LocalDate date){
+        return new ArrayList<>(_payment.findByDate(date));
+    }
+
     public Payment processPayment(int orderId, double tipAmount, String paymentMethod) throws ValidationException, PaymentFailedException{
         Order existingOrder = getOrderOrThrow(orderId);
         if(!existingOrder.getOrderStatus().equals(OrderStatus.SERVED) && !existingOrder.getOrderStatus().equals(OrderStatus.READY)){

@@ -203,4 +203,12 @@ public class ReportService extends AbstractAppService {
         reportData.put("wasteData", wasteReport(monthStartDate, monthEndDate));
         return reportData;
     }
+
+    public ArrayList<LocalDate> getAvailableSalesDates(){
+        return _payment.getAvailableDates();
+    }
+
+    public ArrayList<LocalDate> getAvailableWasteDates(){
+        return _foodWaste.getAvailableDates();
+    }
 }

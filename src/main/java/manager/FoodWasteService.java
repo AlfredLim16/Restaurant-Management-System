@@ -5,58 +5,49 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import user.AbstractAppService;
+import user.InsufficientInventoryException;
 import user.ValidationException;
 
 public class FoodWasteService extends AbstractAppService {
 
     private final IFoodWaste _foodWaste;
+    private final IInventoryItem _inventoryItem;
 
-    public FoodWasteService(IFoodWaste foodWaste){
+    public FoodWasteService(IFoodWaste foodWaste, IInventoryItem inventoryItem){
         this._foodWaste = foodWaste;
+        this._inventoryItem = inventoryItem;
     }
 
-    public FoodWaste recordWaste(String itemName, double quantity, String unit, String reason, double estimatedCost, String recordedBy, String category) throws ValidationException{
-        ensureNotEmpty(itemName, "Item name");
+    public FoodWaste recordWaste(int inventoryItemId, double quantity, String reason, String recordedBy) throws ValidationException, InsufficientInventoryException{
+        InventoryItem item = _inventoryItem.get(inventoryItemId);
+        if(item == null){
+            throw new ValidationException("Inventory item not found");
+        }
         ensurePositive(quantity, "Quantity");
-        ensureNotEmpty(unit, "Unit");
         ensureNotEmpty(reason, "Reason");
-        ensureNotNegative(estimatedCost, "Estimated cost");
         ensureNotEmpty(recordedBy, "Recorded by");
-        ensureNotEmpty(category, "Category");
+
+        if(item.getInventoryQuantity() < (int) quantity){
+            throw new InsufficientInventoryException("Not enough stock for " + item.getInventoryItemName() + ". Available: " + item.getInventoryQuantity() + ", Requested: " + (int) quantity);
+        }
+
+        item.setInventoryQuantity(item.getInventoryQuantity() - (int) quantity);
+        _inventoryItem.update(item);
+
+        double estimatedCost = quantity * item.getInventoryCostPerUnit();
 
         FoodWaste newRecord = new FoodWaste();
-        newRecord.setFoodWasteItemName(itemName);
+        newRecord.setFoodWasteItemName(item.getInventoryItemName());
         newRecord.setFoodWasteQuantity(quantity);
-        newRecord.setFoodWasteUnit(unit);
+        newRecord.setFoodWasteUnit(item.getInventoryUnit());
         newRecord.setFoodWasteReason(reason);
         newRecord.setFoodWasteEstimatedCost(estimatedCost);
         newRecord.setFoodWasteRecordedDate(LocalDateTime.now());
         newRecord.setFoodWasteRecordedBy(recordedBy);
-        newRecord.setFoodWasteCategory(category);
+        newRecord.setFoodWasteCategory(item.getInventoryCategory());
 
         _foodWaste.create(newRecord);
         return newRecord;
-    }
-
-    public void updateWaste(int wasteId, String itemName, double quantity, String unit, String reason, double estimatedCost, String category) throws ValidationException{
-        FoodWaste existingRecord = getWasteOrThrow(wasteId);
-
-        if(itemName != null && !itemName.trim().isEmpty()){
-            existingRecord.setFoodWasteItemName(itemName);
-        }else if(unit != null && !unit.trim().isEmpty()){
-            existingRecord.setFoodWasteUnit(unit);
-        }else if(reason != null && !reason.trim().isEmpty()){
-            existingRecord.setFoodWasteReason(reason);
-        }else if(category != null && !category.trim().isEmpty()){
-            existingRecord.setFoodWasteCategory(category);
-        }
-
-        if(quantity > 0){
-            existingRecord.setFoodWasteQuantity(quantity);
-        }else if(estimatedCost >= 0){
-            existingRecord.setFoodWasteEstimatedCost(estimatedCost);
-        }
-        _foodWaste.update(existingRecord);
     }
 
     public void deleteWaste(int wasteId) throws ValidationException{
@@ -65,8 +56,7 @@ public class FoodWasteService extends AbstractAppService {
     }
 
     // estimated cost of waste records within the date range
-    public double calculateTotalWasteCost(LocalDate startDate, LocalDate endDate)
-        throws ValidationException{
+    public double calculateTotalWasteCost(LocalDate startDate, LocalDate endDate) throws ValidationException{
         ensureDateRange(startDate, endDate);
         double accumulatedWasteCost = 0.0;
         for(FoodWaste currentRecord : _foodWaste.findByDateRange(startDate, endDate)){
@@ -103,8 +93,11 @@ public class FoodWasteService extends AbstractAppService {
         return new ArrayList<>(_foodWaste.getAll());
     }
 
-    public ArrayList<FoodWaste> getWasteByDateRange(LocalDate startDate, LocalDate endDate)
-        throws ValidationException{
+    public ArrayList<InventoryItem> getAllInventoryItems(){
+        return new ArrayList<>(_inventoryItem.getAll());
+    }
+
+    public ArrayList<FoodWaste> getWasteByDateRange(LocalDate startDate, LocalDate endDate) throws ValidationException{
         ensureDateRange(startDate, endDate);
         return new ArrayList<>(_foodWaste.findByDateRange(startDate, endDate));
     }

@@ -1,13 +1,6 @@
 package manager;
 
-import cashier.DbMenuItem;
-import cashier.DbOrder;
-import cashier.DbPayment;
-import cashier.IMenuItem;
-import cashier.IOrder;
-import cashier.IPayment;
-import cashier.OrderService;
-import cashier.PaymentService;
+import cashier.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -21,7 +14,6 @@ import user.User;
 
 public class ManagerFrame extends JFrame implements ActionListener {
 
-    private JLabel lblTitle, lblSystem;
     private OrderService orderService;
     private ReportService reportService;
     private PaymentService paymentService;
@@ -29,12 +21,17 @@ public class ManagerFrame extends JFrame implements ActionListener {
     private FoodWasteService foodWasteService;
     private MenuItemService menuItemService;
     private UserManagementService userManagementService;
+
     private DashboardPanel panelDashboard;
     private InventoryPanel panelInventory;
     private FoodWastePanel panelFoodWaste;
     private ReportsPanel panelReports;
     private MenuItemPanel panelMenuItem;
     private UserManagementPanel panelUsers;
+
+    private URL imgUrl0, imgUrl1, imgUrl2, imgUrl3, imgUrl4;
+    private JLabel lblTitle, lblSystem, memberImage0, memberImage1, memberImage2, memberImage3, memberImage4;
+    private JLabel memberName0, memberName1, memberName2, memberName3, memberName4;
     private JPanel panelAbout;
     private JButton btnDashboard, btnInventory, btnFoodWaste, btnReports, btnMenuItem, btnUsers, btnAbout, btnLogout;
 
@@ -59,7 +56,7 @@ public class ManagerFrame extends JFrame implements ActionListener {
         panelInventory.setBounds(20, 50, 1280, 600);
         add(panelInventory);
 
-        panelFoodWaste = new FoodWastePanel(foodWasteService, menuItemService, this);
+        panelFoodWaste = new FoodWastePanel(foodWasteService, this);
         panelFoodWaste.setBounds(20, 50, 1280, 600);
         add(panelFoodWaste);
 
@@ -91,7 +88,7 @@ public class ManagerFrame extends JFrame implements ActionListener {
         orderService = new OrderService(orderData, menuData, ingredientData, inventoryData);
         paymentService = new PaymentService(paymentData, orderData);
         inventoryService = new InventoryService(inventoryData);
-        foodWasteService = new FoodWasteService(foodWasteData);
+        foodWasteService = new FoodWasteService(foodWasteData, inventoryData);
         reportService = new ReportService(orderData, paymentData, inventoryData, foodWasteData);
         menuItemService = new MenuItemService(menuData, ingredientData, inventoryData);
         userManagementService = new UserManagementService(userData);
@@ -107,12 +104,10 @@ public class ManagerFrame extends JFrame implements ActionListener {
     }
 
     private void Navigation(){
-        int x = 40, y = 10, w = 145, h = 32, gap = 14;
-
         btnDashboard = new JButton("Dashboard", loadIcon("dashboard.png", 18));
         btnDashboard.setOpaque(true);
         btnDashboard.setIconTextGap(12);
-        btnDashboard.setBounds(x, y, w, h);
+        btnDashboard.setBounds(40, 10, 145, 32);
         btnDashboard.setFocusPainted(false);
         //btnDashboard.setBorderPainted(false);
         btnDashboard.setContentAreaFilled(false);
@@ -121,12 +116,11 @@ public class ManagerFrame extends JFrame implements ActionListener {
         btnDashboard.setHorizontalAlignment(SwingConstants.LEFT);
         btnDashboard.addActionListener(this);
         add(btnDashboard);
-        x += w + gap;
 
         btnInventory = new JButton("Inventory", loadIcon("inventory.png", 18));
         btnInventory.setOpaque(true);
         btnInventory.setIconTextGap(12);
-        btnInventory.setBounds(x, y, w, h);
+        btnInventory.setBounds(199, 10, 145, 32);
         btnInventory.setFocusPainted(false);
         //btnInventory.setBorderPainted(false);
         btnInventory.setContentAreaFilled(false);
@@ -135,12 +129,11 @@ public class ManagerFrame extends JFrame implements ActionListener {
         btnInventory.setHorizontalAlignment(SwingConstants.LEFT);
         btnInventory.addActionListener(this);
         add(btnInventory);
-        x += w + gap;
 
         btnMenuItem = new JButton("Menu Items", loadIcon("order.png", 18));
         btnMenuItem.setOpaque(true);
         btnMenuItem.setIconTextGap(12);
-        btnMenuItem.setBounds(x, y, w, h);
+        btnMenuItem.setBounds(358, 10, 145, 32);
         btnMenuItem.setFocusPainted(false);
         //btnMenuItem.setBorderPainted(false);
         btnMenuItem.setContentAreaFilled(false);
@@ -149,12 +142,11 @@ public class ManagerFrame extends JFrame implements ActionListener {
         btnMenuItem.setHorizontalAlignment(SwingConstants.LEFT);
         btnMenuItem.addActionListener(this);
         add(btnMenuItem);
-        x += w + gap;
 
         btnFoodWaste = new JButton("Food Waste", loadIcon("foodWaste.png", 18));
         btnFoodWaste.setOpaque(true);
         btnFoodWaste.setIconTextGap(12);
-        btnFoodWaste.setBounds(x, y, w, h);
+        btnFoodWaste.setBounds(517, 10, 145, 32);
         btnFoodWaste.setFocusPainted(false);
         //btnFoodWaste.setBorderPainted(false);
         btnFoodWaste.setContentAreaFilled(false);
@@ -163,12 +155,11 @@ public class ManagerFrame extends JFrame implements ActionListener {
         btnFoodWaste.setHorizontalAlignment(SwingConstants.LEFT);
         btnFoodWaste.addActionListener(this);
         add(btnFoodWaste);
-        x += w + gap;
 
         btnReports = new JButton("Reports", loadIcon("report.png", 18));
         btnReports.setOpaque(true);
         btnReports.setIconTextGap(12);
-        btnReports.setBounds(x, y, w, h);
+        btnReports.setBounds(676, 10, 145, 32);
         btnReports.setFocusPainted(false);
         //btnReports.setBorderPainted(false);
         btnReports.setContentAreaFilled(false);
@@ -177,12 +168,11 @@ public class ManagerFrame extends JFrame implements ActionListener {
         btnReports.setHorizontalAlignment(SwingConstants.LEFT);
         btnReports.addActionListener(this);
         add(btnReports);
-        x += w + gap;
 
         btnUsers = new JButton("Users", loadIcon("settings.png", 18));
         btnUsers.setOpaque(true);
         btnUsers.setIconTextGap(12);
-        btnUsers.setBounds(x, y, w, h);
+        btnUsers.setBounds(835, 10, 145, 32);
         btnUsers.setFocusPainted(false);
         //btnUsers.setBorderPainted(false);
         btnUsers.setContentAreaFilled(false);
@@ -191,12 +181,11 @@ public class ManagerFrame extends JFrame implements ActionListener {
         btnUsers.setHorizontalAlignment(SwingConstants.LEFT);
         btnUsers.addActionListener(this);
         add(btnUsers);
-        x += w + gap;
 
         btnAbout = new JButton("About", loadIcon("about.png", 18));
         btnAbout.setOpaque(true);
         btnAbout.setIconTextGap(12);
-        btnAbout.setBounds(x, y, w, h);
+        btnAbout.setBounds(994, 10, 145, 32);
         btnAbout.setFocusPainted(false);
         //btnAbout.setBorderPainted(false);
         btnAbout.setContentAreaFilled(false);
@@ -205,12 +194,11 @@ public class ManagerFrame extends JFrame implements ActionListener {
         btnAbout.setHorizontalAlignment(SwingConstants.LEFT);
         btnAbout.addActionListener(this);
         add(btnAbout);
-        x += w + gap;
 
         btnLogout = new JButton("Logout", loadIcon("log-out.png", 18));
         btnLogout.setOpaque(true);
         btnLogout.setIconTextGap(12);
-        btnLogout.setBounds(x, y, w, h);
+        btnLogout.setBounds(1153, 10, 145, 32);
         btnLogout.setFocusPainted(false);
         //btnLogout.setBorderPainted(false);
         btnLogout.setContentAreaFilled(false);
@@ -253,29 +241,73 @@ public class ManagerFrame extends JFrame implements ActionListener {
             "/images/alfred-lim.jpg"
         };
 
-        int startX = 20;
-        int startY = 110;
         int imgW = 220;
         int imgH = 220;
-        int gap = 40;
 
-        for(int i = 0; i < members.length; i++){
-            JLabel imgLabel = new JLabel("", SwingConstants.CENTER);
-            imgLabel.setBounds(startX + (i * (imgW + gap)), startY, imgW, imgH);
-            imgLabel.setBorder(BorderFactory.createLineBorder(new Color(220, 220, 220)));
-
-            URL imgUrl = getClass().getResource(imagePaths[i]);
-            if(imgUrl != null){
-                ImageIcon icon = new ImageIcon(imgUrl);
-                Image scaled = icon.getImage().getScaledInstance(imgW, imgH, Image.SCALE_SMOOTH);
-                imgLabel.setIcon(new ImageIcon(scaled));
-            }
-            panelAbout.add(imgLabel);
-
-            JLabel lblName = new JLabel(members[i], SwingConstants.CENTER);
-            lblName.setBounds(startX + (i * (imgW + gap)), startY + imgH + 8, imgW, 25);
-            panelAbout.add(lblName);
+        memberImage0 = new JLabel("", SwingConstants.CENTER);
+        memberImage0.setBounds(20, 110, imgW, imgH);
+        memberImage0.setBorder(BorderFactory.createLineBorder(new Color(220, 220, 220)));
+        imgUrl0 = getClass().getResource(imagePaths[0]);
+        if(imgUrl0 != null){
+            Image scaled0 = new ImageIcon(imgUrl0).getImage().getScaledInstance(imgW, imgH, Image.SCALE_SMOOTH);
+            memberImage0.setIcon(new ImageIcon(scaled0));
         }
+        panelAbout.add(memberImage0);
+        memberName0 = new JLabel(members[0], SwingConstants.CENTER);
+        memberName0.setBounds(20, 338, imgW, 25);
+        panelAbout.add(memberName0);
+
+        memberImage1 = new JLabel("", SwingConstants.CENTER);
+        memberImage1.setBounds(280, 110, imgW, imgH);
+        memberImage1.setBorder(BorderFactory.createLineBorder(new Color(220, 220, 220)));
+        imgUrl1 = getClass().getResource(imagePaths[1]);
+        if(imgUrl1 != null){
+            Image scaled1 = new ImageIcon(imgUrl1).getImage().getScaledInstance(imgW, imgH, Image.SCALE_SMOOTH);
+            memberImage1.setIcon(new ImageIcon(scaled1));
+        }
+        panelAbout.add(memberImage1);
+        memberName1 = new JLabel(members[1], SwingConstants.CENTER);
+        memberName1.setBounds(280, 338, imgW, 25);
+        panelAbout.add(memberName1);
+
+        memberImage2 = new JLabel("", SwingConstants.CENTER);
+        memberImage2.setBounds(540, 110, imgW, imgH);
+        memberImage2.setBorder(BorderFactory.createLineBorder(new Color(220, 220, 220)));
+        imgUrl2 = getClass().getResource(imagePaths[2]);
+        if(imgUrl2 != null){
+            Image scaled2 = new ImageIcon(imgUrl2).getImage().getScaledInstance(imgW, imgH, Image.SCALE_SMOOTH);
+            memberImage2.setIcon(new ImageIcon(scaled2));
+        }
+        panelAbout.add(memberImage2);
+        memberName2 = new JLabel(members[2], SwingConstants.CENTER);
+        memberName2.setBounds(540, 338, imgW, 25);
+        panelAbout.add(memberName2);
+
+        memberImage3 = new JLabel("", SwingConstants.CENTER);
+        memberImage3.setBounds(800, 110, imgW, imgH);
+        memberImage3.setBorder(BorderFactory.createLineBorder(new Color(220, 220, 220)));
+        imgUrl3 = getClass().getResource(imagePaths[3]);
+        if(imgUrl3 != null){
+            Image scaled3 = new ImageIcon(imgUrl3).getImage().getScaledInstance(imgW, imgH, Image.SCALE_SMOOTH);
+            memberImage3.setIcon(new ImageIcon(scaled3));
+        }
+        panelAbout.add(memberImage3);
+        memberName3 = new JLabel(members[3], SwingConstants.CENTER);
+        memberName3.setBounds(800, 338, imgW, 25);
+        panelAbout.add(memberName3);
+
+        memberImage4 = new JLabel("", SwingConstants.CENTER);
+        memberImage4.setBounds(1060, 110, imgW, imgH);
+        memberImage4.setBorder(BorderFactory.createLineBorder(new Color(220, 220, 220)));
+        imgUrl4 = getClass().getResource(imagePaths[4]);
+        if(imgUrl4 != null){
+            Image scaled4 = new ImageIcon(imgUrl4).getImage().getScaledInstance(imgW, imgH, Image.SCALE_SMOOTH);
+            memberImage4.setIcon(new ImageIcon(scaled4));
+        }
+        panelAbout.add(memberImage4);
+        memberName4 = new JLabel(members[4], SwingConstants.CENTER);
+        memberName4.setBounds(1060, 338, imgW, 25);
+        panelAbout.add(memberName4);
     }
 
     private void showPanel(JPanel panel){

@@ -9,6 +9,7 @@ import java.sql.Statement;
 import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Collections;
 import user.DatabaseConnection;
 
 public class DbPayment implements IPayment {
@@ -205,5 +206,27 @@ public class DbPayment implements IPayment {
             throw new RuntimeException("Error retrieving Payments with status '" + status + "'. Details: " + sqlException.getMessage(), sqlException);
         }
         return payments;
+    }
+
+    @Override
+    public ArrayList<LocalDate> getAvailableDates(){
+        ArrayList<LocalDate> dates = new ArrayList<>();
+        String sql = "SELECT DISTINCT DATE(payment_timestamp) AS pay_date FROM payments WHERE payment_timestamp IS NOT NULL ORDER BY pay_date DESC";
+        try(Connection connection = DatabaseConnection.getConnection()){
+            try(PreparedStatement statement = connection.prepareStatement(sql)){
+                try(ResultSet rs = statement.executeQuery()){
+                    while(rs.next()){
+                        Date d = rs.getDate("pay_date");
+                        if(d != null){
+                            dates.add(d.toLocalDate());
+                        }
+                    }
+                }
+            }
+        }catch(SQLException sqlException){
+            sqlException.printStackTrace();
+            throw new RuntimeException("Error retrieving available payment dates. Details: " + sqlException.getMessage(), sqlException);
+        }
+        return dates;
     }
 }

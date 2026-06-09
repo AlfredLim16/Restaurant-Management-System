@@ -30,6 +30,7 @@ public class UserManagementPanel extends JPanel implements ActionListener {
     private final UserManagementService userManagementService;
     private final JFrame parentFrame;
 
+    private JSeparator separator;
     private JTable tableUsers;
     private JScrollPane scrollUsers;
     private JLabel lblTitle, lblSubTitle;
@@ -56,7 +57,7 @@ public class UserManagementPanel extends JPanel implements ActionListener {
         lblSubTitle.setFont(new Font("Arial", Font.PLAIN, 14));
         add(lblSubTitle);
 
-        JSeparator separator = new JSeparator();
+        separator = new JSeparator();
         separator.setBounds(20, 70, 1260, 1);
         separator.setForeground(Color.BLACK);
         add(separator);
@@ -106,7 +107,8 @@ public class UserManagementPanel extends JPanel implements ActionListener {
     public void refreshUsers() {
         modelUsers.setRowCount(0);
         ArrayList<User> users = userManagementService.getAllUsers();
-        for (User user : users) {
+        for (int i = 0; i < users.size(); i++) {
+            User user = users.get(i);
             modelUsers.addRow(new Object[]{
                 user.getUserName(),
                 user.getUserRole().name()
@@ -117,7 +119,7 @@ public class UserManagementPanel extends JPanel implements ActionListener {
     private void addUser() {
         JTextField txtUsername = new JTextField();
         JPasswordField txtPassword = new JPasswordField();
-        JComboBox<String> comboRole = new JComboBox<>(ROLES);
+        JComboBox comboRole = new JComboBox(ROLES);
 
         Object[] fields = {
             "Username:", txtUsername,
@@ -153,7 +155,7 @@ public class UserManagementPanel extends JPanel implements ActionListener {
         String currentRole = (String) modelUsers.getValueAt(row, 1);
 
         JPasswordField txtPassword = new JPasswordField();
-        JComboBox<String> comboRole = new JComboBox<>(ROLES);
+        JComboBox comboRole = new JComboBox(ROLES);
         comboRole.setSelectedItem(currentRole);
 
         Object[] fields = {
@@ -170,12 +172,13 @@ public class UserManagementPanel extends JPanel implements ActionListener {
         String newRole = (String) comboRole.getSelectedItem();
 
         if (newPassword.isEmpty()) {
-            User existing = userManagementService.getAllUsers().stream()
-                .filter(u -> u.getUserName().equals(username))
-                .findFirst()
-                .orElse(null);
-            if (existing != null) {
-                newPassword = existing.getUserPassword();
+            ArrayList<User> allUsers = userManagementService.getAllUsers();
+            for (int i = 0; i < allUsers.size(); i++) {
+                User u = allUsers.get(i);
+                if (u.getUserName().equals(username)) {
+                    newPassword = u.getUserPassword();
+                    break;
+                }
             }
         }
 

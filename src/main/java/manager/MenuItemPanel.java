@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
+import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -34,6 +35,7 @@ public class MenuItemPanel extends JPanel implements ActionListener {
     private final MenuItemService menuItemService;
     private final JFrame parentFrame;
 
+    private JSeparator separator;
     private JLabel lblTitle, lblSubTitle;
     private JTable tableMenuItem;
     private JScrollPane scrollMenuItem;
@@ -60,7 +62,7 @@ public class MenuItemPanel extends JPanel implements ActionListener {
         lblSubTitle.setFont(new Font("Arial", Font.PLAIN, 14));
         add(lblSubTitle);
 
-        JSeparator separator = new JSeparator();
+        separator = new JSeparator();
         separator.setBounds(20, 70, 1260, 1);
         separator.setForeground(Color.BLACK);
         add(separator);
@@ -120,7 +122,8 @@ public class MenuItemPanel extends JPanel implements ActionListener {
     public void refreshMenuItems(){
         modelMenuItem.setRowCount(0);
         ArrayList<MenuItem> items = menuItemService.getAllMenuItems();
-        for(MenuItem item : items){
+        for(int i = 0; i < items.size(); i++){
+            MenuItem item = items.get(i);
             ArrayList<MenuItemIngredient> ingredients = menuItemService.getIngredients(item.getMenuItemId());
             modelMenuItem.addRow(new Object[]{
                 item.getMenuItemId(),
@@ -139,107 +142,14 @@ public class MenuItemPanel extends JPanel implements ActionListener {
             JOptionPane.showMessageDialog(parentFrame, "No inventory items found. Add inventory first.", "Info", JOptionPane.INFORMATION_MESSAGE);
             return existing;
         }
-
-        DefaultTableModel ingredientModel = new DefaultTableModel(new String[]{"Inventory Item", "Qty Required"}, 0){
-            @Override
-            public boolean isCellEditable(int r, int c){
-                return false;
-            }
-        };
-
-        ArrayList<MenuItemIngredient> ingredientList = new ArrayList<>();
-
-        if(existing != null){
-            for(MenuItemIngredient ing : existing){
-                ingredientList.add(ing);
-                ingredientModel.addRow(new Object[]{ing.getInventoryItemName(), ing.getQuantityRequired()});
-            }
-        }
-
-        JTable ingredientTable = new JTable(ingredientModel);
-        ingredientTable.setRowHeight(25);
-        ingredientTable.getTableHeader().setFont(new Font("Arial", Font.PLAIN, 13));
-        JScrollPane scroll = new JScrollPane(ingredientTable);
-        scroll.setPreferredSize(new Dimension(400, 150));
-
-        String[] invNames = new String[allInventory.size()];
-        for(int i = 0; i < allInventory.size(); i++){
-            invNames[i] = allInventory.get(i).getInventoryItemName();
-        }
-        JComboBox<String> comboInv = new JComboBox<>(invNames);
-        JSpinner spinQty = new JSpinner(new SpinnerNumberModel(1.0, 0.1, 9999.0, 0.1));
-
-        JButton btnAddIng = new JButton("Add Ingredient");
-        JButton btnRemoveIng = new JButton("Remove Selected");
-
-        btnAddIng.addActionListener(ev -> {
-            int idx = comboInv.getSelectedIndex();
-            if(idx < 0) return;
-            InventoryItem chosen = allInventory.get(idx);
-            double qty = (double) spinQty.getValue();
-
-            for(MenuItemIngredient existing2 : ingredientList){
-                if(existing2.getInventoryItemId() == chosen.getInventoryItemId()){
-                    JOptionPane.showMessageDialog(null, "Already added.");
-                    return;
-                }
-            }
-
-            MenuItemIngredient ing = new MenuItemIngredient();
-            ing.setInventoryItemId(chosen.getInventoryItemId());
-            ing.setInventoryItemName(chosen.getInventoryItemName());
-            ing.setQuantityRequired(qty);
-            ingredientList.add(ing);
-            ingredientModel.addRow(new Object[]{chosen.getInventoryItemName(), qty});
-        });
-
-        btnRemoveIng.addActionListener(ev -> {
-            int row = ingredientTable.getSelectedRow();
-            if(row == -1) return;
-            ingredientList.remove(row);
-            ingredientModel.removeRow(row);
-        });
-
-        JPanel panel = new JPanel(null);
-        panel.setPreferredSize(new Dimension(500, 320));
-
-        JLabel lblPick = new JLabel("Inventory Item:");
-        lblPick.setBounds(0, 0, 120, 25);
-        panel.add(lblPick);
-
-        comboInv.setBounds(120, 0, 200, 25);
-        panel.add(comboInv);
-
-        JLabel lblQty = new JLabel("Qty:");
-        lblQty.setBounds(330, 0, 40, 25);
-        panel.add(lblQty);
-
-        spinQty.setBounds(370, 0, 80, 25);
-        panel.add(spinQty);
-
-        btnAddIng.setBounds(0, 35, 140, 28);
-        panel.add(btnAddIng);
-
-        btnRemoveIng.setBounds(150, 35, 150, 28);
-        panel.add(btnRemoveIng);
-
-        JLabel lblList = new JLabel("Ingredients:");
-        lblList.setBounds(0, 75, 120, 20);
-        panel.add(lblList);
-
-        scroll.setBounds(0, 98, 490, 180);
-        panel.add(scroll);
-
-        int result = JOptionPane.showConfirmDialog(parentFrame, panel, "Set Ingredients", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
-        if(result != JOptionPane.OK_OPTION){
-            return existing;
-        }
-        return ingredientList;
+        IngredientDialog dialog = new IngredientDialog(parentFrame, allInventory, existing);
+        dialog.setVisible(true);
+        return dialog.getIngredientList();
     }
 
     private void addMenuItem(){
         JTextField txtName = new JTextField();
-        JComboBox<String> comboCategory = new JComboBox<>(CATEGORIES);
+        JComboBox comboCategory = new JComboBox(CATEGORIES);
         JTextField txtPrice = new JTextField();
         JCheckBox chkAvailable = new JCheckBox("Available", true);
 
@@ -270,7 +180,7 @@ public class MenuItemPanel extends JPanel implements ActionListener {
         }
 
         String category = (String) comboCategory.getSelectedItem();
-        ArrayList<MenuItemIngredient> ingredients = openIngredientDialog(new ArrayList<>());
+        ArrayList<MenuItemIngredient> ingredients = openIngredientDialog(new ArrayList<MenuItemIngredient>());
 
         try{
             menuItemService.addMenuItem(name, price, category, chkAvailable.isSelected(), ingredients);
@@ -293,7 +203,7 @@ public class MenuItemPanel extends JPanel implements ActionListener {
         boolean currentAvailable = "Yes".equals(modelMenuItem.getValueAt(row, 4));
 
         JTextField txtName = new JTextField(currentName);
-        JComboBox<String> comboCategory = new JComboBox<>(CATEGORIES);
+        JComboBox comboCategory = new JComboBox(CATEGORIES);
         comboCategory.setSelectedItem(currentCategory);
         JTextField txtPrice = new JTextField(currentPrice);
         JCheckBox chkAvailable = new JCheckBox("Available", currentAvailable);
@@ -385,11 +295,12 @@ public class MenuItemPanel extends JPanel implements ActionListener {
             return;
         }
 
-        StringBuilder sb = new StringBuilder();
-        for(MenuItemIngredient ing : ingredients){
-            sb.append("- ").append(ing.getInventoryItemName()).append(" x").append(ing.getQuantityRequired()).append("\n");
+        String text = "";
+        for(int i = 0; i < ingredients.size(); i++){
+            MenuItemIngredient ing = ingredients.get(i);
+            text = text + "- " + ing.getInventoryItemName() + " x" + ing.getQuantityRequired() + "\n";
         }
-        JOptionPane.showMessageDialog(parentFrame, sb.toString(), name + " Ingredients", JOptionPane.INFORMATION_MESSAGE);
+        JOptionPane.showMessageDialog(parentFrame, text, name + " Ingredients", JOptionPane.INFORMATION_MESSAGE);
     }
 
     @Override
@@ -404,6 +315,155 @@ public class MenuItemPanel extends JPanel implements ActionListener {
             deleteMenuItem();
         }else if(e.getSource() == btnViewIngredients){
             viewIngredients();
+        }
+    }
+
+
+    class IngredientDialog extends JDialog implements ActionListener {
+
+        private ArrayList<InventoryItem> allInventory;
+        private ArrayList<MenuItemIngredient> ingredientList;
+        private ArrayList<MenuItemIngredient> originalList;
+
+        private JLabel lblPick, lblQty, lblList;
+        private JComboBox comboInv;
+        private JSpinner spinQty;
+        private JButton btnAddIng, btnRemoveIng, btnOk, btnCancel;
+        private JTable ingredientTable;
+        private JScrollPane scroll;
+        private DefaultTableModel ingredientModel;
+        private DefaultTableCellRenderer centerColumn;
+        private JPanel panel;
+
+        public IngredientDialog(JFrame parent, ArrayList<InventoryItem> allInventory, ArrayList<MenuItemIngredient> existing){
+            super(parent, "Set Ingredients", true);
+            this.allInventory = allInventory;
+            this.originalList = existing;
+            this.ingredientList = new ArrayList<MenuItemIngredient>();
+
+            setLayout(null);
+            setSize(540, 420);
+            setLocationRelativeTo(parent);
+            getContentPane().setBackground(Color.WHITE);
+
+            ingredientModel = new DefaultTableModel(new String[]{"Inventory Item", "Qty Required"}, 0){
+                @Override
+                public boolean isCellEditable(int r, int c){
+                    return false;
+                }
+            };
+
+            if(existing != null){
+                for(int i = 0; i < existing.size(); i++){
+                    MenuItemIngredient ing = existing.get(i);
+                    ingredientList.add(ing);
+                    ingredientModel.addRow(new Object[]{ing.getInventoryItemName(), ing.getQuantityRequired()});
+                }
+            }
+
+            String[] invNames = new String[allInventory.size()];
+            for(int i = 0; i < allInventory.size(); i++){
+                invNames[i] = allInventory.get(i).getInventoryItemName();
+            }
+
+            lblPick = new JLabel("Inventory Item:");
+            lblPick.setBounds(10, 10, 120, 25);
+            add(lblPick);
+
+            comboInv = new JComboBox(invNames);
+            comboInv.setBounds(130, 10, 200, 25);
+            add(comboInv);
+
+            lblQty = new JLabel("Qty:");
+            lblQty.setBounds(340, 10, 40, 25);
+            add(lblQty);
+
+            spinQty = new JSpinner(new SpinnerNumberModel(1.0, 0.1, 9999.0, 0.1));
+            spinQty.setBounds(380, 10, 80, 25);
+            add(spinQty);
+
+            btnAddIng = new JButton("Add Ingredient");
+            btnAddIng.setBounds(10, 45, 140, 28);
+            btnAddIng.addActionListener(this);
+            add(btnAddIng);
+
+            btnRemoveIng = new JButton("Remove Selected");
+            btnRemoveIng.setBounds(160, 45, 150, 28);
+            btnRemoveIng.addActionListener(this);
+            add(btnRemoveIng);
+
+            lblList = new JLabel("Ingredients:");
+            lblList.setBounds(10, 85, 120, 20);
+            add(lblList);
+
+            ingredientTable = new JTable(ingredientModel);
+            ingredientTable.setRowHeight(25);
+            ingredientTable.getTableHeader().setFont(new Font("Arial", Font.PLAIN, 13));
+
+            centerColumn = new DefaultTableCellRenderer();
+            centerColumn.setHorizontalAlignment(SwingConstants.CENTER);
+            for(int i = 0; i < ingredientTable.getColumnCount(); i++){
+                ingredientTable.getColumnModel().getColumn(i).setCellRenderer(centerColumn);
+            }
+
+            scroll = new JScrollPane(ingredientTable);
+            scroll.setBounds(10, 108, 500, 200);
+            add(scroll);
+
+            btnOk = new JButton("OK");
+            btnOk.setBounds(310, 320, 90, 28);
+            btnOk.addActionListener(this);
+            add(btnOk);
+
+            btnCancel = new JButton("Cancel");
+            btnCancel.setBounds(410, 320, 90, 28);
+            btnCancel.addActionListener(this);
+            add(btnCancel);
+        }
+
+        public ArrayList<MenuItemIngredient> getIngredientList(){
+            return ingredientList;
+        }
+
+        @Override
+        public void actionPerformed(ActionEvent e){
+            if(e.getSource() == btnAddIng){
+                int idx = comboInv.getSelectedIndex();
+                if(idx < 0){
+                    return;
+                }
+                InventoryItem chosen = allInventory.get(idx);
+                double qty = (double) spinQty.getValue();
+
+                for(int i = 0; i < ingredientList.size(); i++){
+                    if(ingredientList.get(i).getInventoryItemId() == chosen.getInventoryItemId()){
+                        JOptionPane.showMessageDialog(this, "Already added.");
+                        return;
+                    }
+                }
+
+                MenuItemIngredient ing = new MenuItemIngredient();
+                ing.setInventoryItemId(chosen.getInventoryItemId());
+                ing.setInventoryItemName(chosen.getInventoryItemName());
+                ing.setQuantityRequired(qty);
+                ingredientList.add(ing);
+                ingredientModel.addRow(new Object[]{chosen.getInventoryItemName(), qty});
+
+            }else if(e.getSource() == btnRemoveIng){
+                int row = ingredientTable.getSelectedRow();
+                if(row == -1){
+                    return;
+                }
+                ingredientList.remove(row);
+                ingredientModel.removeRow(row);
+
+            }else if(e.getSource() == btnOk){
+                dispose();
+
+            }else if(e.getSource() == btnCancel){
+                ingredientList = originalList;
+                dispose();
+            }
         }
     }
 }

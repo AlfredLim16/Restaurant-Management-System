@@ -9,6 +9,7 @@ import java.sql.Statement;
 import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Collections;
 import user.DatabaseConnection;
 
 public class DbFoodWaste implements IFoodWaste {
@@ -189,5 +190,27 @@ public class DbFoodWaste implements IFoodWaste {
             throw new RuntimeException("Error retrieving FoodWaste records with reason '" + reason + "'. Details: " + sqlException.getMessage(), sqlException);
         }
         return records;
+    }
+
+    @Override
+    public ArrayList<LocalDate> getAvailableDates(){
+        ArrayList<LocalDate> dates = new ArrayList<>();
+        String sql = "SELECT DISTINCT DATE(recorded_date) AS rec_date FROM food_waste WHERE recorded_date IS NOT NULL ORDER BY rec_date DESC";
+        try(Connection connection = DatabaseConnection.getConnection()){
+            try(PreparedStatement statement = connection.prepareStatement(sql)){
+                try(ResultSet rs = statement.executeQuery()){
+                    while(rs.next()){
+                        Date d = rs.getDate("rec_date");
+                        if(d != null){
+                            dates.add(d.toLocalDate());
+                        }
+                    }
+                }
+            }
+        }catch(SQLException sqlException){
+            sqlException.printStackTrace();
+            throw new RuntimeException("Error retrieving available food waste dates. Details: " + sqlException.getMessage(), sqlException);
+        }
+        return dates;
     }
 }

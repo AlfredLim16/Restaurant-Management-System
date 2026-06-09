@@ -36,6 +36,7 @@ public class InventoryPanel extends JPanel implements ActionListener {
     private final InventoryService inventoryService;
     private final JFrame parentFrame;
 
+    private JSeparator separator;
     private JTable tableInventory;
     private JScrollPane scrollInventory;
     private JLabel lblTitle, lblSubTitle;
@@ -63,7 +64,7 @@ public class InventoryPanel extends JPanel implements ActionListener {
         lblSubTitle.setFont(new Font("Arial", Font.PLAIN, 14));
         add(lblSubTitle);
 
-        JSeparator separator = new JSeparator();
+        separator = new JSeparator();
         separator.setBounds(20, 70, 1260, 1);
         separator.setForeground(Color.BLACK);
         add(separator);
@@ -118,9 +119,11 @@ public class InventoryPanel extends JPanel implements ActionListener {
     public void refreshInventory(){
         modelInventory.setRowCount(0);
         ArrayList<InventoryItem> items = inventoryService.getAllInventoryItems();
-        for(InventoryItem item : items){
+        for(int i = 0; i < items.size(); i++){
+            InventoryItem item = items.get(i);
             boolean low = inventoryService.isLowStock(item.getInventoryItemId());
             boolean exp = inventoryService.isExpiringSoon(item.getInventoryItemId(), 7);
+
             String status;
             if(low && exp){
                 status = "Low & Expiring";
@@ -132,6 +135,13 @@ public class InventoryPanel extends JPanel implements ActionListener {
                 status = "Good";
             }
 
+            String expiryText;
+            if(item.getInventoryExpiryDate() != null){
+                expiryText = item.getInventoryExpiryDate().format(DATE_FMT);
+            }else{
+                expiryText = "N/A";
+            }
+
             modelInventory.addRow(new Object[]{
                 item.getInventoryItemId(),
                 item.getInventoryItemName(),
@@ -140,29 +150,17 @@ public class InventoryPanel extends JPanel implements ActionListener {
                 item.getInventoryUnit(),
                 String.format("%.2f", item.getInventoryCostPerUnit()),
                 item.getInventoryReorderLevel(),
-                item.getInventoryExpiryDate() != null ? item.getInventoryExpiryDate().format(DATE_FMT) : "N/A",
+                expiryText,
                 status
             });
         }
     }
 
-    private String pickFromCombo(String title, String[] options, String current){
-        JComboBox<String> combo = new JComboBox<>(options);
-        if(current != null){
-            combo.setSelectedItem(current);
-        }
-        int result = JOptionPane.showConfirmDialog(parentFrame, combo, title, JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
-        if(result != JOptionPane.OK_OPTION){
-            return null;
-        }
-        return (String) combo.getSelectedItem();
-    }
-
     private void addInventory(){
         JTextField txtName = new JTextField();
-        JComboBox<String> comboCategory = new JComboBox<>(CATEGORIES);
+        JComboBox comboCategory = new JComboBox(CATEGORIES);
         JTextField txtQty = new JTextField();
-        JComboBox<String> comboUnit = new JComboBox<>(UNITS);
+        JComboBox comboUnit = new JComboBox(UNITS);
         JTextField txtCost = new JTextField();
         JTextField txtReorder = new JTextField();
         JTextField txtSupplier = new JTextField();

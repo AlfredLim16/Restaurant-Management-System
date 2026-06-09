@@ -11,8 +11,8 @@ import user.ValidationException;
 
 public class OrdersPanel extends JPanel implements ActionListener {
 
-    private JTable tableOrders;
     private JSeparator separator;
+    private JTable tableOrders;
     private final JFrame parentFrame;
     private JScrollPane scrollOrders;
     private DefaultTableModel modelOrders;
@@ -90,19 +90,26 @@ public class OrdersPanel extends JPanel implements ActionListener {
     public void refreshOrders(){
         modelOrders.setRowCount(0);
         ArrayList<Order> orders = orderService.getAllOrders();
-        for(Order order : orders){
+        for(int i = 0; i < orders.size(); i++){
+            Order order = orders.get(i);
             int itemCount = 0;
             if(order.getOrderItems() != null){
-                for(OrderItem orderItem : order.getOrderItems()){
-                    itemCount += orderItem.getOrderItemQuantity();
+                for(int j = 0; j < order.getOrderItems().size(); j++){
+                    itemCount += order.getOrderItems().get(j).getOrderItemQuantity();
                 }
+            }
+            String dateText;
+            if(order.getOrderCreatedTime() != null){
+                dateText = order.getOrderCreatedTime().toLocalDate().toString();
+            }else{
+                dateText = "-";
             }
             modelOrders.addRow(new Object[]{
                 order.getOrderId(),
                 order.getOrderTableNumber(),
                 order.getOrderStatus(),
                 String.format("%.2f", order.getOrderTotalAmount()),
-                order.getOrderCreatedTime() != null ? order.getOrderCreatedTime().toLocalDate().toString() : "-",
+                dateText,
                 itemCount
             });
         }
@@ -165,9 +172,10 @@ public class OrdersPanel extends JPanel implements ActionListener {
         }
         int orderId = (int) modelOrders.getValueAt(row, 0);
         Order order = null;
-        for(Order count : orderService.getAllOrders()){
-            if(count.getOrderId() == orderId){
-                order = count;
+        ArrayList<Order> allOrders = orderService.getAllOrders();
+        for(int i = 0; i < allOrders.size(); i++){
+            if(allOrders.get(i).getOrderId() == orderId){
+                order = allOrders.get(i);
                 break;
             }
         }
@@ -183,7 +191,7 @@ public class OrdersPanel extends JPanel implements ActionListener {
         private JTable tableItems;
         private double currentTotal;
         private JScrollPane scrollPane;
-        private JComboBox<String> comboMenu;
+        private JComboBox comboMenu;
         private DefaultTableModel modelItems;
         private ArrayList<MenuItem> availableMenu;
         private ArrayList<OrderItem> selectedItems;
@@ -215,11 +223,11 @@ public class OrdersPanel extends JPanel implements ActionListener {
             add(lblItem);
 
             String[] names = new String[availableMenu.size()];
-            for(int count = 0; count < availableMenu.size(); count++){
-                MenuItem menu = availableMenu.get(count);
-                names[count] = menu.getMenuItemName() + " - " + String.format("%.2f", menu.getMenuItemPrice());
+            for(int i = 0; i < availableMenu.size(); i++){
+                MenuItem menu = availableMenu.get(i);
+                names[i] = menu.getMenuItemName() + " - " + String.format("%.2f", menu.getMenuItemPrice());
             }
-            comboMenu = new JComboBox<String>(names);
+            comboMenu = new JComboBox(names);
             comboMenu.setBounds(100, 55, 250, 25);
             add(comboMenu);
 
@@ -285,10 +293,10 @@ public class OrdersPanel extends JPanel implements ActionListener {
                 }
                 int quantity = (int) spinQty.getValue();
                 MenuItem chosen = availableMenu.get(menuIndex);
-                double price = chosen.getMenuItemPrice();
 
                 boolean found = false;
-                for(OrderItem orderItem : selectedItems){
+                for(int i = 0; i < selectedItems.size(); i++){
+                    OrderItem orderItem = selectedItems.get(i);
                     if(orderItem.getLinkedMenuItem().getMenuItemId() == chosen.getMenuItemId()){
                         orderItem.setOrderItemQuantity(orderItem.getOrderItemQuantity() + quantity);
                         found = true;
@@ -323,7 +331,8 @@ public class OrdersPanel extends JPanel implements ActionListener {
         private void refreshItems(){
             modelItems.setRowCount(0);
             currentTotal = 0.0;
-            for(OrderItem oi : selectedItems){
+            for(int i = 0; i < selectedItems.size(); i++){
+                OrderItem oi = selectedItems.get(i);
                 double price = oi.getLinkedMenuItem().getMenuItemPrice();
                 double sub = price * oi.getOrderItemQuantity();
                 currentTotal += sub;
@@ -341,11 +350,11 @@ public class OrdersPanel extends JPanel implements ActionListener {
     class OrderDetailsDialog extends JDialog implements ActionListener {
 
         private JLabel lblInfo;
-        private final JButton btnClose;
-        private final JTable detailsTable;
-        private final JScrollPane scrollPane;
-        private final DefaultTableModel detailsModel;
-        private final DefaultTableCellRenderer centerCollumn;
+        private JButton btnClose;
+        private JTable detailsTable;
+        private JScrollPane scrollPane;
+        private DefaultTableModel detailsModel;
+        private DefaultTableCellRenderer centerCollumn;
 
         public OrderDetailsDialog(JFrame parent, Order order){
             super(parent, "Order Details", true);
@@ -374,8 +383,8 @@ public class OrdersPanel extends JPanel implements ActionListener {
 
             centerCollumn = new DefaultTableCellRenderer();
             centerCollumn.setHorizontalAlignment(SwingConstants.CENTER);
-            for(int collumn = 0; collumn < detailsTable.getColumnCount(); collumn++){
-                detailsTable.getColumnModel().getColumn(collumn).setCellRenderer(centerCollumn);
+            for(int i = 0; i < detailsTable.getColumnCount(); i++){
+                detailsTable.getColumnModel().getColumn(i).setCellRenderer(centerCollumn);
             }
 
             scrollPane = new JScrollPane(detailsTable);
@@ -383,11 +392,17 @@ public class OrdersPanel extends JPanel implements ActionListener {
             add(scrollPane);
 
             if(order.getOrderItems() != null){
-                for(OrderItem orderItem : order.getOrderItems()){
-                    double price = orderItem.getLinkedMenuItem() != null ? orderItem.getLinkedMenuItem().getMenuItemPrice() : 0;
+                for(int i = 0; i < order.getOrderItems().size(); i++){
+                    OrderItem orderItem = order.getOrderItems().get(i);
+                    double price = 0;
+                    String itemName = "-";
+                    if(orderItem.getLinkedMenuItem() != null){
+                        price = orderItem.getLinkedMenuItem().getMenuItemPrice();
+                        itemName = orderItem.getLinkedMenuItem().getMenuItemName();
+                    }
                     detailsModel.addRow(new Object[]{
                         orderItem.getOrderItemQuantity(),
-                        orderItem.getLinkedMenuItem() != null ? orderItem.getLinkedMenuItem().getMenuItemName() : "-",
+                        itemName,
                         String.format("%.2f", price),
                         String.format("%.2f", price * orderItem.getOrderItemQuantity())
                     });
@@ -410,5 +425,4 @@ public class OrdersPanel extends JPanel implements ActionListener {
             }
         }
     }
-
 }

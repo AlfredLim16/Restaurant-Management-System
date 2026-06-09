@@ -1,19 +1,35 @@
 package manager;
 
-import java.awt.*;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.HashMap;
-import javax.swing.*;
+import javax.swing.DefaultListModel;
+import javax.swing.JButton;
+import javax.swing.JDialog;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JList;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JSeparator;
+import javax.swing.JTable;
+import javax.swing.ListSelectionModel;
+import javax.swing.SwingConstants;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 
 public class ReportsPanel extends JPanel implements ActionListener {
 
-    private JTable tableReport;
     private JSeparator separator;
+    private JTable tableReport;
     private final JFrame parentFrame;
     private JScrollPane scrollReport;
     private JLabel lblTitle, lblSubTitle;
@@ -21,7 +37,6 @@ public class ReportsPanel extends JPanel implements ActionListener {
     private final ReportService reportService;
     private DefaultTableCellRenderer centerColumn;
     private JButton btnRepSales, btnRepOrders, btnRepInventory, btnRepWaste;
-    private static final DateTimeFormatter DATE_FMT = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
     public ReportsPanel(ReportService reportService, JFrame parentFrame){
         this.reportService = reportService;
@@ -92,13 +107,23 @@ public class ReportsPanel extends JPanel implements ActionListener {
         add(scrollReport);
     }
 
+    private LocalDate pickDate(String title, ArrayList<LocalDate> availableDates){
+        if(availableDates.isEmpty()){
+            JOptionPane.showMessageDialog(parentFrame, "No dates available.", title, JOptionPane.INFORMATION_MESSAGE);
+            return null;
+        }
+        DatePickerDialog dialog = new DatePickerDialog(parentFrame, title, availableDates);
+        dialog.setVisible(true);
+        return dialog.getChosenDate();
+    }
+
     private void runSalesReport(){
-        String dateStr = JOptionPane.showInputDialog(parentFrame, "Date (yyyy-MM-dd):");
-        if(dateStr == null){
+        ArrayList<LocalDate> dates = reportService.getAvailableSalesDates();
+        LocalDate date = pickDate("Select Sales Date", dates);
+        if(date == null){
             return;
         }
         try{
-            LocalDate date = LocalDate.parse(dateStr, DATE_FMT);
             HashMap<String, Object> report = reportService.dailySalesReport(date);
             modelReport.setColumnIdentifiers(new String[]{"Metric", "Value"});
             modelReport.setRowCount(0);
@@ -133,17 +158,22 @@ public class ReportsPanel extends JPanel implements ActionListener {
     }
 
     private void runWasteReport(){
-        String startString = JOptionPane.showInputDialog(parentFrame, "Start date (yyyy-MM-dd):");
-        if(startString == null){
+        ArrayList<LocalDate> dates = reportService.getAvailableWasteDates();
+        if(dates.isEmpty()){
+            JOptionPane.showMessageDialog(parentFrame, "No waste dates available.", "Food Waste Report", JOptionPane.INFORMATION_MESSAGE);
             return;
         }
-        String endString = JOptionPane.showInputDialog(parentFrame, "End date (yyyy-MM-dd):");
-        if(endString == null){
+
+        LocalDate start = pickDate("Select Start Date", dates);
+        if(start == null){
             return;
         }
+        LocalDate end = pickDate("Select End Date", dates);
+        if(end == null){
+            return;
+        }
+
         try{
-            LocalDate start = LocalDate.parse(startString, DATE_FMT);
-            LocalDate end = LocalDate.parse(endString, DATE_FMT);
             HashMap<String, Object> report = reportService.wasteReport(start, end);
             modelReport.setColumnIdentifiers(new String[]{"Metric", "Value"});
             modelReport.setRowCount(0);
@@ -155,7 +185,7 @@ public class ReportsPanel extends JPanel implements ActionListener {
     }
 
     @Override
-    public void actionPerformed(ActionEvent e) {
+    public void actionPerformed(ActionEvent e){
         if(e.getSource() == btnRepSales){
             runSalesReport();
         }else if(e.getSource() == btnRepOrders){
@@ -164,6 +194,96 @@ public class ReportsPanel extends JPanel implements ActionListener {
             runInventoryReport();
         }else if(e.getSource() == btnRepWaste){
             runWasteReport();
+        }
+    }
+
+
+    class DatePickerDialog extends JDialog implements ActionListener, MouseListener {
+
+        private LocalDate chosenDate;
+        private JLabel lblHint;
+        private JList dateList;
+        private JScrollPane scroll;
+        private JButton btnOk, btnCancel;
+        private DefaultListModel listModel;
+
+        public DatePickerDialog(JFrame parent, String title, ArrayList<LocalDate> availableDates){
+            super(parent, title, true);
+            setLayout(null);
+            setSize(300, 420);
+            setLocationRelativeTo(parent);
+            getContentPane().setLayout(null);
+
+            chosenDate = null;
+
+            lblHint = new JLabel("Select a date:");
+            lblHint.setBounds(10, 10, 260, 25);
+            lblHint.setFont(new Font("Arial", Font.PLAIN, 13));
+            add(lblHint);
+
+            listModel = new DefaultListModel();
+            for(int i = 0; i < availableDates.size(); i++){
+                listModel.addElement(availableDates.get(i));
+            }
+
+            dateList = new JList(listModel);
+            dateList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+            dateList.setSelectedIndex(0);
+            dateList.setFont(new Font("Arial", Font.PLAIN, 14));
+            dateList.setFixedCellHeight(28);
+            dateList.addMouseListener(this);
+
+            scroll = new JScrollPane(dateList);
+            scroll.setBounds(10, 40, 270, 300);
+            add(scroll);
+
+            btnOk = new JButton("OK");
+            btnOk.setBounds(100, 350, 80, 28);
+            btnOk.addActionListener(this);
+            add(btnOk);
+
+            btnCancel = new JButton("Cancel");
+            btnCancel.setBounds(190, 350, 85, 28);
+            btnCancel.addActionListener(this);
+            add(btnCancel);
+        }
+
+        public LocalDate getChosenDate(){
+            return chosenDate;
+        }
+
+        @Override
+        public void actionPerformed(ActionEvent e){
+            if(e.getSource() == btnOk){
+                chosenDate = (LocalDate) dateList.getSelectedValue();
+                dispose();
+            }else if(e.getSource() == btnCancel){
+                dispose();
+            }
+        }
+
+        @Override
+        public void mouseClicked(MouseEvent e){
+            if(e.getClickCount() == 2){
+                chosenDate = (LocalDate) dateList.getSelectedValue();
+                dispose();
+            }
+        }
+
+        @Override
+        public void mousePressed(MouseEvent e){
+        }
+
+        @Override
+        public void mouseReleased(MouseEvent e){
+        }
+
+        @Override
+        public void mouseEntered(MouseEvent e){
+        }
+
+        @Override
+        public void mouseExited(MouseEvent e){
         }
     }
 }

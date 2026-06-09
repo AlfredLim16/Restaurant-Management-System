@@ -1,6 +1,5 @@
 package manager;
 
-import cashier.MenuItem;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
@@ -22,6 +21,7 @@ import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
+import user.InsufficientInventoryException;
 import user.ValidationException;
 
 public class FoodWastePanel extends JPanel implements ActionListener {
@@ -31,9 +31,9 @@ public class FoodWastePanel extends JPanel implements ActionListener {
     };
 
     private final FoodWasteService foodWasteService;
-    private final MenuItemService menuItemService;
     private final JFrame parentFrame;
 
+    private JSeparator separator;
     private JTable tableWaste;
     private JScrollPane scrollWaste;
     private JLabel lblTitle, lblSubTitle;
@@ -43,9 +43,8 @@ public class FoodWastePanel extends JPanel implements ActionListener {
     private JButton btnWasteAdd, btnWasteDelete;
     private static final DateTimeFormatter DATE_FMT = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
-    public FoodWastePanel(FoodWasteService foodWasteService, MenuItemService menuItemService, JFrame parentFrame) {
+    public FoodWastePanel(FoodWasteService foodWasteService, JFrame parentFrame) {
         this.foodWasteService = foodWasteService;
-        this.menuItemService = menuItemService;
         this.parentFrame = parentFrame;
         setLayout(null);
         setBackground(Color.WHITE);
@@ -63,7 +62,7 @@ public class FoodWastePanel extends JPanel implements ActionListener {
         lblSubTitle.setFont(new Font("Arial", Font.PLAIN, 14));
         add(lblSubTitle);
 
-        JSeparator separator = new JSeparator();
+        separator = new JSeparator();
         separator.setBounds(20, 70, 1260, 1);
         separator.setForeground(Color.BLACK);
         add(separator);
@@ -146,26 +145,25 @@ public class FoodWastePanel extends JPanel implements ActionListener {
     }
 
     private void addWaste() {
-        ArrayList<MenuItem> menuItems = menuItemService.getAllMenuItems();
-        if (menuItems.isEmpty()) {
-            JOptionPane.showMessageDialog(parentFrame, "No menu items found. Add menu items first.", "Error", JOptionPane.ERROR_MESSAGE);
+        ArrayList<InventoryItem> inventoryItems = foodWasteService.getAllInventoryItems();
+        if (inventoryItems.isEmpty()) {
+            JOptionPane.showMessageDialog(parentFrame, "No inventory items found.", "Error", JOptionPane.ERROR_MESSAGE);
             return;
         }
 
-        String[] itemNames = new String[menuItems.size()];
-        for (int i = 0; i < menuItems.size(); i++) {
-            itemNames[i] = menuItems.get(i).getMenuItemName();
+        String[] itemLabels = new String[inventoryItems.size()];
+        for (int i = 0; i < inventoryItems.size(); i++) {
+            InventoryItem item = inventoryItems.get(i);
+            itemLabels[i] = item.getInventoryItemName() + " (Stock: " + item.getInventoryQuantity() + " " + item.getInventoryUnit() + ")";
         }
 
-        JComboBox<String> comboItem = new JComboBox<>(itemNames);
+        JComboBox comboItem = new JComboBox(itemLabels);
         JTextField txtQty = new JTextField();
-        JTextField txtCost = new JTextField();
-        JComboBox<String> comboReason = new JComboBox<>(REASONS);
+        JComboBox comboReason = new JComboBox(REASONS);
 
         Object[] fields = {
             "Item:", comboItem,
             "Quantity:", txtQty,
-            "Cost:", txtCost,
             "Reason:", comboReason
         };
 
@@ -174,19 +172,18 @@ public class FoodWastePanel extends JPanel implements ActionListener {
             return;
         }
 
-        String itemName = (String) comboItem.getSelectedItem();
-        String reason = (String) comboReason.getSelectedItem();
-
         int selectedIndex = comboItem.getSelectedIndex();
-        String category = menuItems.get(selectedIndex).getMenuItemCategory();
+        InventoryItem selectedItem = inventoryItems.get(selectedIndex);
+        String reason = (String) comboReason.getSelectedItem();
 
         try {
             double qty = Double.parseDouble(txtQty.getText().trim());
-            double cost = Double.parseDouble(txtCost.getText().trim());
-            foodWasteService.recordWaste(itemName, qty, "units", reason, cost, "staff", category);
+            foodWasteService.recordWaste(selectedItem.getInventoryItemId(), qty, reason, "staff");
             refreshFoodWaste();
         } catch (NumberFormatException ex) {
-            JOptionPane.showMessageDialog(parentFrame, "Invalid number value.", "Error", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(parentFrame, "Invalid quantity value.", "Error", JOptionPane.ERROR_MESSAGE);
+        } catch (InsufficientInventoryException ex) {
+            JOptionPane.showMessageDialog(parentFrame, ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
         } catch (ValidationException ex) {
             JOptionPane.showMessageDialog(parentFrame, ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
         }

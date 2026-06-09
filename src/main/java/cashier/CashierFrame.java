@@ -37,7 +37,7 @@ public class CashierFrame extends JFrame implements ActionListener {
         panelOrders.setBounds(20, 50, 860, 500);
         add(panelOrders);
 
-        panelPayments = new PaymentsPanel(paymentService, this);
+        panelPayments = new PaymentsPanel(paymentService, orderService, this);
         panelPayments.setBounds(20, 50, 860, 500);
         add(panelPayments);
 
@@ -65,12 +65,10 @@ public class CashierFrame extends JFrame implements ActionListener {
     }
 
     private void Navigation(){
-        int x = 40, y = 10, width = 150, height = 35, gap = 15;
-
         btnOrders = new JButton("Orders", loadIcon("order.png", 18));
         btnOrders.setOpaque(true);
         btnOrders.setIconTextGap(12);
-        btnOrders.setBounds(x, y, width, height);
+        btnOrders.setBounds(40, 10, 150, 35);
         btnOrders.setFocusPainted(false);
         //btnOrders.setBorderPainted(false);
         btnOrders.setContentAreaFilled(false);
@@ -79,12 +77,11 @@ public class CashierFrame extends JFrame implements ActionListener {
         btnOrders.setHorizontalAlignment(SwingConstants.LEFT);
         btnOrders.addActionListener(this);
         add(btnOrders);
-        x += width + gap;
 
         btnPayments = new JButton("Payments", loadIcon("payment.png", 18));
         btnPayments.setOpaque(true);
         btnPayments.setIconTextGap(12);
-        btnPayments.setBounds(x, y, width, height);
+        btnPayments.setBounds(205, 10, 150, 35);
         btnPayments.setFocusPainted(false);
         //btnPayments.setBorderPainted(false);
         btnPayments.setContentAreaFilled(false);
@@ -93,12 +90,11 @@ public class CashierFrame extends JFrame implements ActionListener {
         btnPayments.setHorizontalAlignment(SwingConstants.LEFT);
         btnPayments.addActionListener(this);
         add(btnPayments);
-        x += width + gap;
 
         btnLogout = new JButton("Logout", loadIcon("log-out.png", 18));
         btnLogout.setOpaque(true);
         btnLogout.setIconTextGap(12);
-        btnLogout.setBounds(x, y, width, height);
+        btnLogout.setBounds(370, 10, 150, 35);
         btnLogout.setFocusPainted(false);
         //btnLogout.setBorderPainted(false);
         btnLogout.setContentAreaFilled(false);
@@ -129,5 +125,4 @@ public class CashierFrame extends JFrame implements ActionListener {
             loginFrame.setVisible(true);
         }
     }
-
 }

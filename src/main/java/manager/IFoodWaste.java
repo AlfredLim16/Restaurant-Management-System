@@ -14,4 +14,5 @@ public interface IFoodWaste {
     ArrayList<FoodWaste> findByCategory(String category);
     ArrayList<FoodWaste> findByDateRange(LocalDate startDate, LocalDate endDate);
     ArrayList<FoodWaste> findByReason(String reason);
+    ArrayList<LocalDate> getAvailableDates();
 }

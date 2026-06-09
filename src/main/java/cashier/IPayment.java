@@ -15,4 +15,5 @@ public interface IPayment {
     ArrayList<Payment> findByOrderId(int orderId);
     ArrayList<Payment> findByPaymentMethod(String method);
     ArrayList<Payment> findByStatus(String status);
+    ArrayList<LocalDate> getAvailableDates();
 }
