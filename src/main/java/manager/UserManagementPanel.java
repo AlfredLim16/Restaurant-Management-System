@@ -38,7 +38,7 @@ public class UserManagementPanel extends JPanel implements ActionListener {
     private DefaultTableCellRenderer centerColumn;
     private JButton btnUserAdd, btnUserEdit, btnUserDelete;
 
-    public UserManagementPanel(UserManagementService userManagementService, JFrame parentFrame) {
+    public UserManagementPanel(UserManagementService userManagementService, JFrame parentFrame){
         this.userManagementService = userManagementService;
         this.parentFrame = parentFrame;
         setLayout(null);
@@ -46,7 +46,7 @@ public class UserManagementPanel extends JPanel implements ActionListener {
         Users();
     }
 
-    private void Users() {
+    private void Users(){
         lblTitle = new JLabel("Users");
         lblTitle.setBounds(20, 10, 200, 30);
         lblTitle.setFont(new Font("Arial", Font.BOLD, 18));
@@ -79,7 +79,7 @@ public class UserManagementPanel extends JPanel implements ActionListener {
 
         modelUsers = new DefaultTableModel(new String[]{"Username", "Role"}, 0) {
             @Override
-            public boolean isCellEditable(int row, int col) {
+            public boolean isCellEditable(int row, int col){
                 return false;
             }
         };
@@ -93,7 +93,7 @@ public class UserManagementPanel extends JPanel implements ActionListener {
 
         centerColumn = new DefaultTableCellRenderer();
         centerColumn.setHorizontalAlignment(SwingConstants.CENTER);
-        for (int i = 0; i < tableUsers.getColumnCount(); i++) {
+        for(int i = 0; i < tableUsers.getColumnCount(); i++){
             tableUsers.getColumnModel().getColumn(i).setCellRenderer(centerColumn);
         }
 
@@ -104,10 +104,10 @@ public class UserManagementPanel extends JPanel implements ActionListener {
         refreshUsers();
     }
 
-    public void refreshUsers() {
+    public void refreshUsers(){
         modelUsers.setRowCount(0);
         ArrayList<User> users = userManagementService.getAllUsers();
-        for (int i = 0; i < users.size(); i++) {
+        for(int i = 0; i < users.size(); i++){
             User user = users.get(i);
             modelUsers.addRow(new Object[]{
                 user.getUserName(),
@@ -116,7 +116,7 @@ public class UserManagementPanel extends JPanel implements ActionListener {
         }
     }
 
-    private void addUser() {
+    private void addUser(){
         JTextField txtUsername = new JTextField();
         JPasswordField txtPassword = new JPasswordField();
         JComboBox comboRole = new JComboBox(ROLES);
@@ -128,7 +128,7 @@ public class UserManagementPanel extends JPanel implements ActionListener {
         };
 
         int result = JOptionPane.showConfirmDialog(parentFrame, fields, "Add User", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
-        if (result != JOptionPane.OK_OPTION) {
+        if(result != JOptionPane.OK_OPTION){
             return;
         }
 
@@ -136,17 +136,17 @@ public class UserManagementPanel extends JPanel implements ActionListener {
         String password = new String(txtPassword.getPassword()).trim();
         String role = (String) comboRole.getSelectedItem();
 
-        try {
+        try{
             userManagementService.addUser(username, password, role);
             refreshUsers();
-        } catch (ValidationException ex) {
+        }catch(ValidationException ex){
             JOptionPane.showMessageDialog(parentFrame, ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
         }
     }
 
-    private void editUser() {
+    private void editUser(){
         int row = tableUsers.getSelectedRow();
-        if (row == -1) {
+        if(row == -1){
             JOptionPane.showMessageDialog(parentFrame, "Select a user.");
             return;
         }
@@ -164,60 +164,60 @@ public class UserManagementPanel extends JPanel implements ActionListener {
         };
 
         int result = JOptionPane.showConfirmDialog(parentFrame, fields, "Edit User: " + username, JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
-        if (result != JOptionPane.OK_OPTION) {
+        if(result != JOptionPane.OK_OPTION){
             return;
         }
 
         String newPassword = new String(txtPassword.getPassword()).trim();
         String newRole = (String) comboRole.getSelectedItem();
 
-        if (newPassword.isEmpty()) {
+        if(newPassword.isEmpty()){
             ArrayList<User> allUsers = userManagementService.getAllUsers();
-            for (int i = 0; i < allUsers.size(); i++) {
+            for(int i = 0; i < allUsers.size(); i++){
                 User u = allUsers.get(i);
-                if (u.getUserName().equals(username)) {
+                if(u.getUserName().equals(username)){
                     newPassword = u.getUserPassword();
                     break;
                 }
             }
         }
 
-        try {
+        try{
             userManagementService.updateUser(username, newPassword, newRole);
             refreshUsers();
-        } catch (ValidationException ex) {
+        }catch(ValidationException ex){
             JOptionPane.showMessageDialog(parentFrame, ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
         }
     }
 
-    private void deleteUser() {
+    private void deleteUser(){
         int row = tableUsers.getSelectedRow();
-        if (row == -1) {
+        if(row == -1){
             JOptionPane.showMessageDialog(parentFrame, "Select a user.");
             return;
         }
 
         String username = (String) modelUsers.getValueAt(row, 0);
         int confirm = JOptionPane.showConfirmDialog(parentFrame, "Delete user '" + username + "'?", "Confirm", JOptionPane.YES_NO_OPTION);
-        if (confirm != JOptionPane.YES_OPTION) {
+        if(confirm != JOptionPane.YES_OPTION){
             return;
         }
 
-        try {
+        try{
             userManagementService.deleteUser(username);
             refreshUsers();
-        } catch (ValidationException ex) {
+        }catch(ValidationException ex){
             JOptionPane.showMessageDialog(parentFrame, ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
         }
     }
 
     @Override
-    public void actionPerformed(ActionEvent e) {
-        if (e.getSource() == btnUserAdd) {
+    public void actionPerformed(ActionEvent e){
+        if(e.getSource() == btnUserAdd){
             addUser();
-        } else if (e.getSource() == btnUserEdit) {
+        }else if(e.getSource() == btnUserEdit){
             editUser();
-        } else if (e.getSource() == btnUserDelete) {
+        }else if(e.getSource() == btnUserDelete){
             deleteUser();
         }
     }

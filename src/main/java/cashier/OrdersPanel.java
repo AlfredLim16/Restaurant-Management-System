@@ -133,9 +133,6 @@ public class OrdersPanel extends JPanel implements ActionListener {
         if(current.equals("Ready")){
             return new String[]{"Served", "Cancelled"};
         }
-        if(current.equals("Served")){
-            return new String[]{"Completed"};
-        }
         return new String[]{};
     }
 

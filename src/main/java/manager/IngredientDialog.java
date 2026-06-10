@@ -20,7 +20,7 @@ import javax.swing.SwingConstants;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 
-public class Ingredient extends JDialog implements ActionListener {
+public class IngredientDialog extends JDialog implements ActionListener {
 
     private ArrayList<InventoryItem> allInventory;
     private ArrayList<MenuItemIngredient> ingredientList;
@@ -36,7 +36,7 @@ public class Ingredient extends JDialog implements ActionListener {
     private DefaultTableCellRenderer centerColumn;
     private JPanel panel;
 
-    public Ingredient(JFrame parent, ArrayList<InventoryItem> allInventory, ArrayList<MenuItemIngredient> existing){
+    public IngredientDialog(JFrame parent, ArrayList<InventoryItem> allInventory, ArrayList<MenuItemIngredient> existing){
         super(parent, "Set Ingredients", true);
         this.allInventory = allInventory;
         this.originalList = existing;

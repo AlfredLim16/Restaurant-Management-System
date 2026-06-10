@@ -5,7 +5,11 @@ import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import javax.swing.JButton;
@@ -30,7 +34,7 @@ public class ReportsPanel extends JPanel implements ActionListener {
     private DefaultTableModel modelReport;
     private final ReportService reportService;
     private DefaultTableCellRenderer centerColumn;
-    private JButton btnRepSales, btnRepOrders, btnRepInventory, btnRepWaste;
+    private JButton btnRepSales, btnRepOrders, btnRepInventory, btnRepWaste, btnExport;
 
     public ReportsPanel(ReportService reportService, JFrame parentFrame){
         this.reportService = reportService;
@@ -76,6 +80,11 @@ public class ReportsPanel extends JPanel implements ActionListener {
         btnRepWaste.addActionListener(this);
         add(btnRepWaste);
 
+        btnExport = new JButton("Export to File");
+        btnExport.setBounds(460, 80, 120, 30);
+        btnExport.addActionListener(this);
+        add(btnExport);
+
         modelReport = new DefaultTableModel(new String[]{"Metric", "Value"}, 0) {
             @Override
             public boolean isCellEditable(int r, int c){
@@ -106,7 +115,7 @@ public class ReportsPanel extends JPanel implements ActionListener {
             JOptionPane.showMessageDialog(parentFrame, "No dates available.", title, JOptionPane.INFORMATION_MESSAGE);
             return null;
         }
-        DatePicker datePicker = new DatePicker(parentFrame, title, availableDates);
+        DatePickerDialog datePicker = new DatePickerDialog(parentFrame, title, availableDates);
         datePicker.setVisible(true);
         return datePicker.getChosenDate();
     }
@@ -178,6 +187,36 @@ public class ReportsPanel extends JPanel implements ActionListener {
         }
     }
 
+    private void exportReport(){
+        if(modelReport.getRowCount() == 0){
+            JOptionPane.showMessageDialog(parentFrame, "No report data to export. Generate a report first.", "Nothing to Export", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+        String timestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd_HH-mm-ss"));
+        String fileName = "report_" + timestamp + ".txt";
+
+        try{
+            FileWriter writer = new FileWriter(fileName);
+            writer.write("===== REPORT =====\n");
+            writer.write("Generated: " + LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")) + "\n");
+            writer.write("==================\n\n");
+
+            for(int i = 0; i < modelReport.getRowCount(); i++){
+                String metric = String.valueOf(modelReport.getValueAt(i, 0));
+                String value = String.valueOf(modelReport.getValueAt(i, 1));
+                writer.write(metric + ": " + value + "\n");
+            }
+
+            writer.write("\n==================\n");
+            writer.close();
+
+            JOptionPane.showMessageDialog(parentFrame, "Report saved as: " + fileName, "Export Successful", JOptionPane.INFORMATION_MESSAGE);
+        }catch(IOException ex){
+            JOptionPane.showMessageDialog(parentFrame, "Failed to save file: " + ex.getMessage(), "Export Error", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
     @Override
     public void actionPerformed(ActionEvent e){
         if(e.getSource() == btnRepSales){
@@ -188,6 +227,8 @@ public class ReportsPanel extends JPanel implements ActionListener {
             runInventoryReport();
         }else if(e.getSource() == btnRepWaste){
             runWasteReport();
+        }else if(e.getSource() == btnExport){
+            exportReport();
         }
     }
 }

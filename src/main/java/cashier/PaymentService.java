@@ -113,12 +113,6 @@ public class PaymentService extends AbstractAppService {
         }
         existingPaymentRecord.setPaymentStatus(PaymentStatus.REFUNDED);
         _payment.update(existingPaymentRecord);
-
-        Order relatedOrder = _order.get(existingPaymentRecord.getLinkedOrderId());
-        if(relatedOrder != null){
-            relatedOrder.setOrderStatus(OrderStatus.SERVED);
-            _order.update(relatedOrder);
-        }
     }
 
     private boolean hasCompletedPayment(int orderIdentifier){
@@ -139,7 +133,7 @@ public class PaymentService extends AbstractAppService {
     }
 
     private boolean simulatePaymentProcessing(String paymentMethod){
-        return Math.random() < 0.95;
+        return true;
     }
 
     private String generateTransactionId(){

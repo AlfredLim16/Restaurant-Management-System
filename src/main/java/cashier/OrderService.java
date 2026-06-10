@@ -165,8 +165,6 @@ public class OrderService extends AbstractAppService {
             return proposedNewStatus.equals(OrderStatus.READY) || proposedNewStatus.equals(OrderStatus.CANCELLED);
         }else if(currentOrderStatus.equals(OrderStatus.READY)){
             return proposedNewStatus.equals(OrderStatus.SERVED) || proposedNewStatus.equals(OrderStatus.CANCELLED);
-        }else if(currentOrderStatus.equals(OrderStatus.SERVED)){
-            return proposedNewStatus.equals(OrderStatus.COMPLETED);
         }
         return false;
     }

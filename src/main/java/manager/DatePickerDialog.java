@@ -7,16 +7,9 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.time.LocalDate;
 import java.util.ArrayList;
-import javax.swing.DefaultListModel;
-import javax.swing.JButton;
-import javax.swing.JDialog;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JList;
-import javax.swing.JScrollPane;
-import javax.swing.ListSelectionModel;
+import javax.swing.*;
 
-public class DatePicker extends JDialog implements ActionListener, MouseListener {
+public class DatePickerDialog extends JDialog implements ActionListener, MouseListener {
 
     private LocalDate chosenDate;
     private JLabel lblHint;
@@ -25,7 +18,7 @@ public class DatePicker extends JDialog implements ActionListener, MouseListener
     private JButton btnOk, btnCancel;
     private DefaultListModel listModel;
 
-    public DatePicker(JFrame parent, String title, ArrayList<LocalDate> availableDates){
+    public DatePickerDialog(JFrame parent, String title, ArrayList<LocalDate> availableDates){
         super(parent, title, true);
         setLayout(null);
         setSize(300, 420);
@@ -90,17 +83,21 @@ public class DatePicker extends JDialog implements ActionListener, MouseListener
 
     @Override
     public void mousePressed(MouseEvent e){
+
     }
 
     @Override
     public void mouseReleased(MouseEvent e){
+
     }
 
     @Override
     public void mouseEntered(MouseEvent e){
+
     }
 
     @Override
     public void mouseExited(MouseEvent e){
+
     }
 }

@@ -8,17 +8,7 @@ import java.awt.event.ActionListener;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashMap;
-import javax.swing.JButton;
-import javax.swing.JComboBox;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JSeparator;
-import javax.swing.JTable;
-import javax.swing.JTextField;
-import javax.swing.SwingConstants;
+import javax.swing.*;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import user.InsufficientInventoryException;
@@ -113,6 +103,12 @@ public class FoodWastePanel extends JPanel implements ActionListener {
     }
 
     public void refreshFoodWaste() {
+        int expired = foodWasteService.logExpiredItems();
+        if(expired > 0){
+            JOptionPane.showMessageDialog(parentFrame,
+                expired + " expired item(s) were automatically logged as waste and removed from inventory.",
+                "Expired Items Logged", JOptionPane.WARNING_MESSAGE);
+        }
         modelWaste.setRowCount(0);
         ArrayList<FoodWaste> records = foodWasteService.getAllWasteRecords();
         for (FoodWaste foodwaste : records) {

@@ -29,7 +29,6 @@ public class ManagerFrame extends JFrame implements ActionListener {
     private MenuItemPanel panelMenuItem;
     private UserManagementPanel panelUsers;
 
-    private URL imgUrl0, imgUrl1, imgUrl2, imgUrl3, imgUrl4;
     private JLabel lblTitle, lblSystem, memberImage0, memberImage1, memberImage2, memberImage3, memberImage4;
     private JLabel memberName0, memberName1, memberName2, memberName3, memberName4;
     private JPanel panelAbout;
@@ -52,7 +51,7 @@ public class ManagerFrame extends JFrame implements ActionListener {
         panelDashboard.setBounds(20, 50, 1280, 600);
         add(panelDashboard);
 
-        panelInventory = new InventoryPanel(inventoryService, this);
+        panelInventory = new InventoryPanel(inventoryService, foodWasteService, this);
         panelInventory.setBounds(20, 50, 1280, 600);
         add(panelInventory);
 
@@ -247,7 +246,7 @@ public class ManagerFrame extends JFrame implements ActionListener {
         memberImage0 = new JLabel("", SwingConstants.CENTER);
         memberImage0.setBounds(20, 110, imgW, imgH);
         memberImage0.setBorder(BorderFactory.createLineBorder(new Color(220, 220, 220)));
-        imgUrl0 = getClass().getResource(imagePaths[0]);
+        URL imgUrl0 = getClass().getResource(imagePaths[0]);
         if(imgUrl0 != null){
             Image scaled0 = new ImageIcon(imgUrl0).getImage().getScaledInstance(imgW, imgH, Image.SCALE_SMOOTH);
             memberImage0.setIcon(new ImageIcon(scaled0));
@@ -260,7 +259,7 @@ public class ManagerFrame extends JFrame implements ActionListener {
         memberImage1 = new JLabel("", SwingConstants.CENTER);
         memberImage1.setBounds(280, 110, imgW, imgH);
         memberImage1.setBorder(BorderFactory.createLineBorder(new Color(220, 220, 220)));
-        imgUrl1 = getClass().getResource(imagePaths[1]);
+        URL imgUrl1 = getClass().getResource(imagePaths[1]);
         if(imgUrl1 != null){
             Image scaled1 = new ImageIcon(imgUrl1).getImage().getScaledInstance(imgW, imgH, Image.SCALE_SMOOTH);
             memberImage1.setIcon(new ImageIcon(scaled1));
@@ -273,7 +272,7 @@ public class ManagerFrame extends JFrame implements ActionListener {
         memberImage2 = new JLabel("", SwingConstants.CENTER);
         memberImage2.setBounds(540, 110, imgW, imgH);
         memberImage2.setBorder(BorderFactory.createLineBorder(new Color(220, 220, 220)));
-        imgUrl2 = getClass().getResource(imagePaths[2]);
+        URL imgUrl2 = getClass().getResource(imagePaths[2]);
         if(imgUrl2 != null){
             Image scaled2 = new ImageIcon(imgUrl2).getImage().getScaledInstance(imgW, imgH, Image.SCALE_SMOOTH);
             memberImage2.setIcon(new ImageIcon(scaled2));
@@ -286,7 +285,7 @@ public class ManagerFrame extends JFrame implements ActionListener {
         memberImage3 = new JLabel("", SwingConstants.CENTER);
         memberImage3.setBounds(800, 110, imgW, imgH);
         memberImage3.setBorder(BorderFactory.createLineBorder(new Color(220, 220, 220)));
-        imgUrl3 = getClass().getResource(imagePaths[3]);
+        URL imgUrl3 = getClass().getResource(imagePaths[3]);
         if(imgUrl3 != null){
             Image scaled3 = new ImageIcon(imgUrl3).getImage().getScaledInstance(imgW, imgH, Image.SCALE_SMOOTH);
             memberImage3.setIcon(new ImageIcon(scaled3));
@@ -299,7 +298,7 @@ public class ManagerFrame extends JFrame implements ActionListener {
         memberImage4 = new JLabel("", SwingConstants.CENTER);
         memberImage4.setBounds(1060, 110, imgW, imgH);
         memberImage4.setBorder(BorderFactory.createLineBorder(new Color(220, 220, 220)));
-        imgUrl4 = getClass().getResource(imagePaths[4]);
+        URL imgUrl4 = getClass().getResource(imagePaths[4]);
         if(imgUrl4 != null){
             Image scaled4 = new ImageIcon(imgUrl4).getImage().getScaledInstance(imgW, imgH, Image.SCALE_SMOOTH);
             memberImage4.setIcon(new ImageIcon(scaled4));

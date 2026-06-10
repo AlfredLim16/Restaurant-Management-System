@@ -93,6 +93,35 @@ public class FoodWasteService extends AbstractAppService {
         return new ArrayList<>(_foodWaste.getAll());
     }
 
+    public int logExpiredItems(){
+        LocalDate today = LocalDate.now();
+        int count = 0;
+        ArrayList<InventoryItem> allItems = _inventoryItem.getAll();
+        for(int i = 0; i < allItems.size(); i++){
+            InventoryItem item = allItems.get(i);
+            if(item.getInventoryExpiryDate() == null){
+                continue;
+            }
+            if(item.getInventoryExpiryDate().isBefore(today) && item.getInventoryQuantity() > 0){
+                FoodWaste wasteRecord = new FoodWaste();
+                wasteRecord.setFoodWasteItemName(item.getInventoryItemName());
+                wasteRecord.setFoodWasteQuantity(item.getInventoryQuantity());
+                wasteRecord.setFoodWasteUnit(item.getInventoryUnit());
+                wasteRecord.setFoodWasteReason("Expired");
+                wasteRecord.setFoodWasteEstimatedCost(item.getInventoryQuantity() * item.getInventoryCostPerUnit());
+                wasteRecord.setFoodWasteRecordedDate(LocalDateTime.now());
+                wasteRecord.setFoodWasteRecordedBy("system");
+                wasteRecord.setFoodWasteCategory(item.getInventoryCategory());
+                _foodWaste.create(wasteRecord);
+
+                item.setInventoryQuantity(0);
+                _inventoryItem.update(item);
+                count++;
+            }
+        }
+        return count;
+    }
+
     public ArrayList<InventoryItem> getAllInventoryItems(){
         return new ArrayList<>(_inventoryItem.getAll());
     }

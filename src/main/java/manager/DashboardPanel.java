@@ -13,11 +13,8 @@ public class DashboardPanel extends JPanel {
 
     private JSeparator separator;
     private final ReportService reportService;
-
     private JLabel lblTitle, lblSubTitle;
-
     private JPanel cardRevenue, cardActive, cardCompleted, cardLow;
-
     private JLabel lblCardRevenueTitle, lblCardRevenueValue;
     private JLabel lblCardActiveTitle, lblCardActiveValue;
     private JLabel lblCardCompletedTitle, lblCardCompletedValue;

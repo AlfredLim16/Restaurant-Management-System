@@ -34,6 +34,7 @@ public class InventoryPanel extends JPanel implements ActionListener {
     };
 
     private final InventoryService inventoryService;
+    private final FoodWasteService foodWasteService;
     private final JFrame parentFrame;
 
     private JSeparator separator;
@@ -45,8 +46,9 @@ public class InventoryPanel extends JPanel implements ActionListener {
     private JButton btnInvAdd, btnInvSetQty, btnInvRestock, btnInvRename, btnInvDelete;
     private static final DateTimeFormatter DATE_FMT = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
-    public InventoryPanel(InventoryService inventoryService, JFrame parentFrame){
+    public InventoryPanel(InventoryService inventoryService, FoodWasteService foodWasteService, JFrame parentFrame){
         this.inventoryService = inventoryService;
+        this.foodWasteService = foodWasteService;
         this.parentFrame = parentFrame;
         setLayout(null);
         setBackground(Color.WHITE);
@@ -122,6 +124,12 @@ public class InventoryPanel extends JPanel implements ActionListener {
     }
 
     public void refreshInventory(){
+        int expired = foodWasteService.logExpiredItems();
+        if(expired > 0){
+            JOptionPane.showMessageDialog(parentFrame,
+                expired + " expired item(s) were automatically logged as waste and removed from inventory.",
+                "Expired Items Logged", JOptionPane.WARNING_MESSAGE);
+        }
         modelInventory.setRowCount(0);
         ArrayList<InventoryItem> items = inventoryService.getAllInventoryItems();
         for(int i = 0; i < items.size(); i++){

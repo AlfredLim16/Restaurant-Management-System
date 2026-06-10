@@ -239,49 +239,49 @@ public class PaymentsPanel extends JPanel implements ActionListener {
         JPanel panel = new JPanel(null);
         panel.setPreferredSize(new Dimension(340, 185));
 
-        JLabel lOrderId = new JLabel("Order ID:");
-        lOrderId.setBounds(10, 10, 100, 25);
-        panel.add(lOrderId);
+        JLabel lblOrderId = new JLabel("Order ID:");
+        lblOrderId.setBounds(10, 10, 100, 25);
+        panel.add(lblOrderId);
 
         JLabel vOrderId = new JLabel(String.valueOf(orderId));
         vOrderId.setBounds(120, 10, 210, 25);
         panel.add(vOrderId);
 
-        JLabel lTable = new JLabel("Table:");
-        lTable.setBounds(10, 40, 100, 25);
-        panel.add(lTable);
+        JLabel lblTable = new JLabel("Table:");
+        lblTable.setBounds(10, 40, 100, 25);
+        panel.add(lblTable);
 
         JLabel vTable = new JLabel(table);
         vTable.setBounds(120, 40, 210, 25);
         panel.add(vTable);
 
-        JLabel lItems = new JLabel("Items:");
-        lItems.setBounds(10, 70, 100, 25);
-        panel.add(lItems);
+        JLabel lblItems = new JLabel("Items:");
+        lblItems.setBounds(10, 70, 100, 25);
+        panel.add(lblItems);
 
         JLabel vItems = new JLabel(items);
         vItems.setBounds(120, 70, 210, 25);
         panel.add(vItems);
 
-        JLabel lAmount = new JLabel("Amount:");
-        lAmount.setBounds(10, 100, 100, 25);
-        panel.add(lAmount);
+        JLabel lblAmount = new JLabel("Amount:");
+        lblAmount.setBounds(10, 100, 100, 25);
+        panel.add(lblAmount);
 
         JLabel vAmount = new JLabel(amountStr);
         vAmount.setBounds(120, 100, 210, 25);
         panel.add(vAmount);
 
-        JLabel lTip = new JLabel("Tip :");
-        lTip.setBounds(10, 130, 100, 25);
-        panel.add(lTip);
+        JLabel lblTip = new JLabel("Tip :");
+        lblTip.setBounds(10, 130, 100, 25);
+        panel.add(lblTip);
 
         JTextField tipField = new JTextField("0.00");
         tipField.setBounds(120, 130, 210, 25);
         panel.add(tipField);
 
-        JLabel lMethod = new JLabel("Method:");
-        lMethod.setBounds(10, 160, 100, 25);
-        panel.add(lMethod);
+        JLabel lblMethod = new JLabel("Method:");
+        lblMethod.setBounds(10, 160, 100, 25);
+        panel.add(lblMethod);
 
         JComboBox methodBox = new JComboBox(PAYMENT_METHODS);
         methodBox.setBounds(120, 160, 210, 25);
@@ -298,7 +298,7 @@ public class PaymentsPanel extends JPanel implements ActionListener {
             paymentService.processPayment(orderId, tip, method);
             currentViewDate = LocalDate.now();
             refreshPayments();
-            JOptionPane.showMessageDialog(parentFrame, "Payment processed successfully for Order #" + orderId + ".", "Payment Complete", JOptionPane.INFORMATION_MESSAGE);
+            showReceipt(orderId, table, items, amountStr, tip, (String) methodBox.getSelectedItem());
         }catch(NumberFormatException ex){
             JOptionPane.showMessageDialog(parentFrame, "Invalid tip amount.", "Error", JOptionPane.ERROR_MESSAGE);
         }catch(PaymentFailedException ex){
@@ -382,6 +382,11 @@ public class PaymentsPanel extends JPanel implements ActionListener {
             }
         }
         return "-";
+    }
+
+    private void showReceipt(int orderId, String table, String items, String amount, double tip, String method){
+        ReceiptDialog receipt = new ReceiptDialog(parentFrame, orderId, table, items, amount, tip, method);
+        receipt.setVisible(true);
     }
 
     @Override

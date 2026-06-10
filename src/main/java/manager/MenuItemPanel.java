@@ -128,7 +128,7 @@ public class MenuItemPanel extends JPanel implements ActionListener {
             JOptionPane.showMessageDialog(parentFrame, "No inventory items found. Add inventory first.", "Info", JOptionPane.INFORMATION_MESSAGE);
             return existing;
         }
-        Ingredient ingredient = new Ingredient(parentFrame, allInventory, existing);
+        IngredientDialog ingredient = new IngredientDialog(parentFrame, allInventory, existing);
         ingredient.setVisible(true);
         return ingredient.getIngredientList();
     }
