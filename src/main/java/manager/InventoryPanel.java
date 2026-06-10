@@ -42,7 +42,7 @@ public class InventoryPanel extends JPanel implements ActionListener {
     private JLabel lblTitle, lblSubTitle;
     private DefaultTableModel modelInventory;
     private DefaultTableCellRenderer centerColumn;
-    private JButton btnInvAdd, btnInvUpdate, btnInvRestock, btnInvDelete;
+    private JButton btnInvAdd, btnInvSetQty, btnInvRestock, btnInvRename, btnInvDelete;
     private static final DateTimeFormatter DATE_FMT = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
     public InventoryPanel(InventoryService inventoryService, JFrame parentFrame){
@@ -74,18 +74,23 @@ public class InventoryPanel extends JPanel implements ActionListener {
         btnInvAdd.addActionListener(this);
         add(btnInvAdd);
 
-        btnInvUpdate = new JButton("Update Quantity");
-        btnInvUpdate.setBounds(110, 80, 130, 30);
-        btnInvUpdate.addActionListener(this);
-        add(btnInvUpdate);
+        btnInvSetQty = new JButton("Set Quantity");
+        btnInvSetQty.setBounds(110, 80, 110, 30);
+        btnInvSetQty.addActionListener(this);
+        add(btnInvSetQty);
 
         btnInvRestock = new JButton("Restock");
-        btnInvRestock.setBounds(250, 80, 90, 30);
+        btnInvRestock.setBounds(230, 80, 110, 30);
         btnInvRestock.addActionListener(this);
         add(btnInvRestock);
 
+        btnInvRename = new JButton("Rename");
+        btnInvRename.setBounds(350, 80, 90, 30);
+        btnInvRename.addActionListener(this);
+        add(btnInvRename);
+
         btnInvDelete = new JButton("Delete");
-        btnInvDelete.setBounds(350, 80, 90, 30);
+        btnInvDelete.setBounds(450, 80, 90, 30);
         btnInvDelete.addActionListener(this);
         add(btnInvDelete);
 
@@ -210,14 +215,17 @@ public class InventoryPanel extends JPanel implements ActionListener {
         }
     }
 
-    private void updateInventoryQty(){
+    private void setInventoryQty(){
         int row = tableInventory.getSelectedRow();
         if(row == -1){
             JOptionPane.showMessageDialog(parentFrame, "Select an item.");
             return;
         }
         int id = (int) modelInventory.getValueAt(row, 0);
-        String input = JOptionPane.showInputDialog(parentFrame, "New quantity:");
+        String name = (String) modelInventory.getValueAt(row, 1);
+        int currentQty = (int) modelInventory.getValueAt(row, 3);
+
+        String input = JOptionPane.showInputDialog(parentFrame, "Item: " + name + "\nCurrent quantity: " + currentQty + "\n\nEnter new quantity:");
         if(input == null){
             return;
         }
@@ -238,7 +246,11 @@ public class InventoryPanel extends JPanel implements ActionListener {
             return;
         }
         int id = (int) modelInventory.getValueAt(row, 0);
-        String input = JOptionPane.showInputDialog(parentFrame, "Quantity to add:");
+        String name = (String) modelInventory.getValueAt(row, 1);
+        int currentQty = (int) modelInventory.getValueAt(row, 3);
+
+        String input = JOptionPane.showInputDialog(parentFrame,
+            "Item: " + name + "\nCurrent quantity: " + currentQty + "\n\nHow many to add?");
         if(input == null){
             return;
         }
@@ -252,6 +264,27 @@ public class InventoryPanel extends JPanel implements ActionListener {
         }
     }
 
+    private void renameInventory(){
+        int row = tableInventory.getSelectedRow();
+        if(row == -1){
+            JOptionPane.showMessageDialog(parentFrame, "Select an item.");
+            return;
+        }
+        int id = (int) modelInventory.getValueAt(row, 0);
+        String currentName = (String) modelInventory.getValueAt(row, 1);
+
+        String input = JOptionPane.showInputDialog(parentFrame, "Enter new name:", currentName);
+        if(input == null){
+            return;
+        }
+        try{
+            inventoryService.updateName(id, input.trim());
+            refreshInventory();
+        }catch(ValidationException ex){
+            JOptionPane.showMessageDialog(parentFrame, ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
     private void deleteInventory(){
         int row = tableInventory.getSelectedRow();
         if(row == -1){
@@ -259,7 +292,8 @@ public class InventoryPanel extends JPanel implements ActionListener {
             return;
         }
         int id = (int) modelInventory.getValueAt(row, 0);
-        int confirm = JOptionPane.showConfirmDialog(parentFrame, "Delete this item?", "Confirm", JOptionPane.YES_NO_OPTION);
+        String name = (String) modelInventory.getValueAt(row, 1);
+        int confirm = JOptionPane.showConfirmDialog(parentFrame, "Delete \"" + name + "\"?", "Confirm", JOptionPane.YES_NO_OPTION);
         if(confirm != JOptionPane.YES_OPTION){
             return;
         }
@@ -275,10 +309,12 @@ public class InventoryPanel extends JPanel implements ActionListener {
     public void actionPerformed(ActionEvent e){
         if(e.getSource() == btnInvAdd){
             addInventory();
-        }else if(e.getSource() == btnInvUpdate){
-            updateInventoryQty();
+        }else if(e.getSource() == btnInvSetQty){
+            setInventoryQty();
         }else if(e.getSource() == btnInvRestock){
             restockInventory();
+        }else if(e.getSource() == btnInvRename){
+            renameInventory();
         }else if(e.getSource() == btnInvDelete){
             deleteInventory();
         }

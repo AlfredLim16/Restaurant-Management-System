@@ -108,6 +108,13 @@ public class InventoryService extends AbstractAppService {
         _inventoryItem.update(existingItem);
     }
 
+    public void updateName(int inventoryId, String newName) throws ValidationException{
+        InventoryItem existingItem = getInventoryItemOrThrow(inventoryId);
+        ensureNotEmpty(newName, "Item name");
+        existingItem.setInventoryItemName(newName.trim());
+        _inventoryItem.update(existingItem);
+    }
+
     public void updateReorderLevel(int inventoryId, int newReorderLevel) throws ValidationException{
         InventoryItem existingItem = getInventoryItemOrThrow(inventoryId);
         ensureNotNegative(newReorderLevel, "Reorder level");
